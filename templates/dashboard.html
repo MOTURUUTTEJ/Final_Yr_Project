@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — NeuroGuard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .hero {
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.2) 0%, rgba(247, 37, 133, 0.1) 100%);
+            border: 1px solid rgba(108, 99, 255, 0.25);
+            border-radius: 24px;
+            padding: 36px 40px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            right: -60px;
+            top: -60px;
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .hero h1 {
+            font-size: 1.9rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        .hero .cta {
+            margin-top: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-glass {
+            background: rgba(26, 22, 48, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+        }
+
+        .tip-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.88rem;
+        }
+
+        .tip-item:last-child {
+            border-bottom: none;
+        }
+
+        .tip-icon {
+            min-width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .tip-text strong {
+            display: block;
+            font-size: 0.88rem;
+            margin-bottom: 2px;
+        }
+
+        .tip-text span {
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            text-decoration: none;
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .quick-action:hover {
+            background: rgba(108, 99, 255, 0.12);
+            border-color: rgba(108, 99, 255, 0.3);
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        .quick-action .qa-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .quick-action .qa-text strong {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .quick-action .qa-text small {
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+
+        .quick-action .qa-arrow {
+            margin-left: auto;
+            color: var(--muted);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        .empty-state p {
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="topnav">
+        <a href="{{ url_for('dashboard') }}" class="brand">
+            <div class="pulse"><i class="fas fa-brain" style="color:#fff;font-size:16px;"></i></div>
+            NeuroGuard
+        </a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('dashboard') }}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('predict') }}"><i class="fas fa-calculator"></i> Predict</a></li>
+            <li><a href="{{ url_for('history') }}"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i> Profile</a></li>
+            <li><a href="{{ url_for('logout') }}" class="btn-danger-nav"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+        </ul>
+        <div class="nav-hamburger"><i class="fas fa-bars"></i></div>
+    </nav>
+
+    <div class="page-wrap">
+        <!-- Hero -->
+        <div class="hero fade-up">
+            <h1>Welcome back, {{ username }} 👋</h1>
+            <p>Monitor your stroke risk and track your health journey with AI-powered insights</p>
+            <div class="cta">
+                <a href="{{ url_for('predict') }}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i> New Prediction
+                </a>
+                <a href="{{ url_for('history') }}" class="btn btn-outline" style="margin-left:10px;">
+                    <i class="fas fa-chart-line"></i> View History
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card fade-up fade-up-1">
+                <div class="stat-icon" style="background:rgba(108,99,255,0.15); color:var(--primary);">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="stat-value" id="total-predictions" style="color:var(--primary);">—</div>
+                <div class="stat-label">Total Predictions</div>
+            </div>
+            <div class="stat-card fade-up fade-up-2">
+                <div class="stat-icon" style="background:rgba(239,68,68,0.15); color:var(--danger);">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-value" id="high-risk" style="color:var(--danger);">—</div>
+                <div class="stat-label">High Risk Cases</div>
+            </div>
+            <div class="stat-card fade-up fade-up-3">
+                <div class="stat-icon" style="background:rgba(245,158,11,0.15); color:var(--warning);">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="stat-value" id="avg-risk" style="color:var(--warning);">—</div>
+                <div class="stat-label">Avg Risk Score</div>
+            </div>
+        </div>
+
+        <!-- Main grid -->
+        <div class="main-grid">
+            <!-- Recent predictions -->
+            <div class="card-glass fade-up fade-up-4">
+                <div class="section-hdr">
+                    <i class="fas fa-history"></i> Recent Predictions
+                </div>
+                <div style="padding:4px 0;">
+                    {% if predictions %}
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Age</th>
+                                    <th>Glucose</th>
+                                    <th>BMI</th>
+                                    <th>Score</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in predictions[:6] %}
+                                <tr>
+                                    <td style="color:var(--muted); font-size:0.8rem;">
+                                        {{ p.created_at.strftime('%b %d, %Y') }}
+                                    </td>
+                                    <td>{{ p.age }} yrs</td>
+                                    <td>{{ p.avg_glucose_level|round(1) }} mg/dL</td>
+                                    <td>{{ p.bmi|round(1) }}</td>
+                                    <td>
+                                        <span class="badge badge-primary">{{ (p.risk_score * 100)|round(1) }}%</span>
+                                    </td>
+                                    <td>
+                                        {% if p.risk_score < 0.15 %} <span class="badge badge-success"><i
+                                                class="fas fa-check-circle"></i> Low Risk</span>
+                                            {% elif p.risk_score < 0.40 %} <span class="badge badge-warning"><i
+                                                    class="fas fa-exclamation-triangle"></i> Medium Risk</span>
+                                                {% else %}
+                                                <span class="badge badge-danger"><i class="fas fa-times-circle"></i>
+                                                    High Risk</span>
+                                                {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="padding:16px 24px; border-top:1px solid var(--border);">
+                        <a href="{{ url_for('history') }}" class="btn btn-outline" style="font-size:0.85rem;">
+                            <i class="fas fa-list"></i> View All Predictions
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-heartbeat"></i>
+                        <p>No predictions yet. Get started by making your first risk assessment.</p>
+                        <a href="{{ url_for('predict') }}" class="btn btn-primary">
+                            <i class="fas fa-play"></i> Start Now
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+                <!-- Quick actions -->
+                <div class="card-glass fade-up fade-up-5" style="margin-bottom:16px;">
+                    <div class="section-hdr"><i class="fas fa-bolt"></i> Quick Actions</div>
+                    <div style="padding:16px;">
+                        <a href="{{ url_for('predict') }}" class="quick-action">
+                            <div class="qa-icon" style="background:rgba(108,99,255,0.15); color:var(--primary);">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <div class="qa-text">
+                                <strong>New Prediction</strong>
+                                <small>Assess stroke risk now</small>
+                            </div>
+                            <i class="fas fa-chevron-right qa-arrow"></i>
+                        </a>
+                        <a href="{{ url_for('history') }}" class="quick-action">
+                            <div class="qa-icon" style="background:rgba(59,130,246,0.15); color:var(--info);">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="qa-text">
+                                <strong>History</strong>
+                                <small>View past assessments</small>
+                            </div>
+                            <i class="fas fa-chevron-right qa-arrow"></i>
+                        </a>
+                        <a href="{{ url_for('profile') }}" class="quick-action">
+                            <div class="qa-icon" style="background:rgba(16,185,129,0.15); color:var(--success);">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="qa-text">
+                                <strong>My Profile</strong>
+                                <small>Account settings</small>
+                            </div>
+                            <i class="fas fa-chevron-right qa-arrow"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Health tips -->
+                <div class="card-glass fade-up">
+                    <div class="section-hdr"><i class="fas fa-heart"></i> Health Tips</div>
+                    <div style="padding:16px;">
+                        <div class="tip-item">
+                            <div class="tip-icon" style="background:rgba(16,185,129,0.15); color:#34d399;"><i
+                                    class="fas fa-weight"></i></div>
+                            <div class="tip-text"><strong>Healthy BMI</strong><span>Maintain a BMI between
+                                    18.5–24.9</span></div>
+                        </div>
+                        <div class="tip-item">
+                            <div class="tip-icon" style="background:rgba(59,130,246,0.15); color:#60a5fa;"><i
+                                    class="fas fa-running"></i></div>
+                            <div class="tip-text"><strong>Stay Active</strong><span>30 min exercise daily reduces
+                                    risk</span></div>
+                        </div>
+                        <div class="tip-item">
+                            <div class="tip-icon" style="background:rgba(245,158,11,0.15); color:#fbbf24;"><i
+                                    class="fas fa-heartbeat"></i></div>
+                            <div class="tip-text"><strong>Blood Pressure</strong><span>Keep below 120/80 mmHg</span>
+                            </div>
+                        </div>
+                        <div class="tip-item">
+                            <div class="tip-icon" style="background:rgba(247,37,133,0.15); color:#f472b6;"><i
+                                    class="fas fa-candy-cane"></i></div>
+                            <div class="tip-text"><strong>Glucose Control</strong><span>Normal fasting: 70–100
+                                    mg/dL</span></div>
+                        </div>
+                        <div class="tip-item">
+                            <div class="tip-icon" style="background:rgba(239,68,68,0.15); color:#f87171;"><i
+                                    class="fas fa-smoking-ban"></i></div>
+                            <div class="tip-text"><strong>No Smoking</strong><span>Doubles your stroke risk</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animated counter
+        function animateCount(el, target, suffix = '') {
+            let current = 0;
+            const increment = target / 40;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) { current = target; clearInterval(timer); }
+                el.textContent = Math.floor(current) + suffix;
+            }, 30);
+        }
+
+        fetch('{{ url_for("user_stats") }}')
+            .then(r => r.json())
+            .then(data => {
+                const total = document.getElementById('total-predictions');
+                const high = document.getElementById('high-risk');
+                const avg = document.getElementById('avg-risk');
+                animateCount(total, data.total_predictions);
+                animateCount(high, data.high_risk_count);
+                animateCount(avg, data.avg_risk_score, '%');
+            })
+            .catch(() => {
+                ['total-predictions', 'high-risk', 'avg-risk'].forEach(id => {
+                    document.getElementById(id).textContent = '0';
+                });
+            });
+    </script>
+</body>
+
+</html>

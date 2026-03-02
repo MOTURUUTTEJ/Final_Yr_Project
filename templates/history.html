@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction History — NeuroGuard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .card-glass {
+            background: rgba(26, 22, 48, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+        }
+
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 6px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            transition: all 0.2s;
+        }
+
+        .filter-chip:hover,
+        .filter-chip.active {
+            background: rgba(108, 99, 255, 0.15);
+            color: var(--primary);
+            border-color: rgba(108, 99, 255, 0.4);
+        }
+
+        .filter-chip.low.active {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .filter-chip.medium.active {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        .filter-chip.high.active {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 64px 24px;
+            color: var(--muted);
+        }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            opacity: 0.25;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="topnav">
+        <a href="{{ url_for('dashboard') }}" class="brand">
+            <div class="pulse"><i class="fas fa-brain" style="color:#fff;font-size:16px;"></i></div>
+            NeuroGuard
+        </a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('predict') }}"><i class="fas fa-calculator"></i> Predict</a></li>
+            <li><a href="{{ url_for('history') }}" class="active"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i> Profile</a></li>
+            <li><a href="{{ url_for('logout') }}" class="btn-danger-nav"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="page-wrap">
+        <div style="margin-bottom:24px;" class="fade-up">
+            <h1 style="font-size:1.8rem;font-weight:800;margin-bottom:6px;">
+                <i class="fas fa-history" style="color:var(--primary);"></i> Prediction History
+            </h1>
+            <p style="color:var(--muted);">All your past stroke risk assessments in one place</p>
+        </div>
+
+        <div class="card-glass fade-up fade-up-1">
+            {% if predictions %}
+            <div class="filter-bar">
+                <span style="font-size:0.8rem;color:var(--muted);font-weight:600;">FILTER:</span>
+                <button class="filter-chip active" onclick="filterTable('all',this)">All ({{ predictions|length
+                    }})</button>
+                <button class="filter-chip low" onclick="filterTable('low',this)"><i class="fas fa-check-circle"></i>
+                    Low</button>
+                <button class="filter-chip medium" onclick="filterTable('medium',this)"><i
+                        class="fas fa-exclamation-triangle"></i> Medium</button>
+                <button class="filter-chip high" onclick="filterTable('high',this)"><i class="fas fa-times-circle"></i>
+                    High</button>
+                <span style="margin-left:auto;font-size:0.8rem;color:var(--muted);">{{ predictions|length }}
+                    record(s)</span>
+            </div>
+
+            <div class="table-wrap">
+                <table class="table" id="history-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date &amp; Time</th>
+                            <th>Age</th>
+                            <th>Glucose</th>
+                            <th>BMI</th>
+                            <th>Score</th>
+                            <th>Bar</th>
+                            <th>Risk Level</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in predictions %}
+                        {% set score = (p.risk_score * 100)|round(1) %}
+                        {% if p.risk_score < 0.15 %}{% set rc='low' %} {% elif p.risk_score < 0.40 %}{% set rc='medium'
+                            %} {% else %}{% set rc='high' %}{% endif %} <tr class="pred-row" data-risk="{{ rc }}">
+                            <td style="color:var(--muted);font-size:0.8rem;">{{ loop.index }}</td>
+                            <td>
+                                <div style="font-size:0.88rem;">{{ p.created_at.strftime('%b %d, %Y') }}</div>
+                                <div style="font-size:0.75rem;color:var(--muted);">{{ p.created_at.strftime('%H:%M:%S')
+                                    }}</div>
+                            </td>
+                            <td><strong>{{ p.age }}</strong> yrs</td>
+                            <td>{{ p.avg_glucose_level|round(1) }} mg/dL</td>
+                            <td>{{ p.bmi|round(1) }}</td>
+                            <td>
+                                <span
+                                    class="badge {% if rc=='low' %}badge-success{% elif rc=='medium' %}badge-warning{% else %}badge-danger{% endif %}">
+                                    {{ score }}%
+                                </span>
+                            </td>
+                            <td style="min-width:80px;">
+                                <div class="progress-track" style="height:6px;">
+                                    <div class="progress-fill {% if rc=='low' %}fill-low{% elif rc=='medium' %}fill-medium{% else %}fill-high{% endif %}"
+                                        style="width:{{ score }}%;"></div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if rc == 'low' %}
+                                <span class="badge badge-success"><i class="fas fa-check-circle"></i> Low Risk</span>
+                                {% elif rc == 'medium' %}
+                                <span class="badge badge-warning"><i class="fas fa-exclamation-triangle"></i> Medium
+                                    Risk</span>
+                                {% else %}
+                                <span class="badge badge-danger"><i class="fas fa-times-circle"></i> High Risk</span>
+                                {% endif %}
+                            </td>
+                            </tr>
+                            {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div
+                style="padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+                <a href="{{ url_for('predict') }}" class="btn btn-primary" style="font-size:0.85rem;">
+                    <i class="fas fa-plus"></i> New Prediction
+                </a>
+                <span style="font-size:0.8rem;color:var(--muted);">Showing {{ predictions|length }} predictions</span>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-clipboard-list"></i>
+                <p style="font-size:1.1rem;font-weight:600;color:var(--text);margin-bottom:8px;">No predictions yet</p>
+                <p style="margin-bottom:24px;">Get your first stroke risk assessment to start tracking your health.</p>
+                <a href="{{ url_for('predict') }}" class="btn btn-primary"><i class="fas fa-play"></i> Make First
+                    Prediction</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function filterTable(type, btn) {
+            document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.pred-row').forEach(row => {
+                row.style.display = (type === 'all' || row.dataset.risk === type) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+
+</html>

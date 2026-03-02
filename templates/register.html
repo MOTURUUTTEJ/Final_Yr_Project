@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — NeuroGuard Stroke Risk AI</title>
+    <meta name="description" content="Create your NeuroGuard account for AI-powered stroke risk prediction">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: radial-gradient(ellipse at 80% 50%, rgba(108, 99, 255, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 20%, rgba(247, 37, 133, 0.1) 0%, transparent 50%),
+                var(--bg);
+        }
+
+        .auth-box {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(26, 22, 48, 0.8);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 48px 44px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .auth-logo .icon-wrap {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(108, 99, 255, 0.4);
+            animation: heartbeat 1.4s ease-in-out infinite;
+        }
+
+        .auth-logo .brand-text {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .auth-logo .brand-sub {
+            font-size: 0.7rem;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            font-size: 1.7rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .auth-sub {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.88rem;
+            color: var(--muted);
+        }
+
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .input-icon .form-control {
+            padding-left: 42px;
+        }
+
+        .strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.08);
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s, background 0.3s;
+            width: 0%;
+        }
+
+        .strength-text {
+            font-size: 0.75rem;
+            margin-top: 4px;
+            color: var(--muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="auth-box">
+        <div class="auth-logo">
+            <div class="icon-wrap"><i class="fas fa-brain"></i></div>
+            <div>
+                <div class="brand-text">NeuroGuard</div>
+                <div class="brand-sub">Stroke Risk AI</div>
+            </div>
+        </div>
+
+        <h2>Create Account</h2>
+        <p class="auth-sub">Start monitoring your stroke risk today — it's free</p>
+
+        {% if error %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" id="reg-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <div class="input-icon">
+                    <i class="fas fa-user"></i>
+                    <input type="text" class="form-control" id="username" name="username"
+                        placeholder="Choose a username" required minlength="3" autocomplete="username">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="your@email.com"
+                        required autocomplete="email">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" class="form-control" id="password" name="password"
+                        placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password"
+                        oninput="checkStrength(this.value)">
+                </div>
+                <div class="strength-bar">
+                    <div class="strength-fill" id="strength-fill"></div>
+                </div>
+                <div class="strength-text" id="strength-text">Enter a password</div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <div class="input-icon">
+                    <i class="fas fa-shield-alt"></i>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                        placeholder="Repeat your password" required autocomplete="new-password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="reg-btn" style="margin-top:8px;">
+                <i class="fas fa-user-plus"></i> Create Account
+            </button>
+        </form>
+
+        <div class="auth-footer" style="margin-top:20px;">
+            Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('particles');
+        for (let i = 0; i < 18; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 6 + 3;
+            p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random() * 100}%;animation-duration:${Math.random() * 12 + 8}s;animation-delay:-${Math.random() * 10}s;`;
+            container.appendChild(p);
+        }
+
+        function checkStrength(pw) {
+            const fill = document.getElementById('strength-fill');
+            const text = document.getElementById('strength-text');
+            let score = 0;
+            if (pw.length >= 6) score++;
+            if (pw.length >= 10) score++;
+            if (/[A-Z]/.test(pw)) score++;
+            if (/[0-9]/.test(pw)) score++;
+            if (/[^A-Za-z0-9]/.test(pw)) score++;
+            const levels = [
+                { pct: '20%', color: '#ef4444', label: 'Very weak' },
+                { pct: '40%', color: '#f97316', label: 'Weak' },
+                { pct: '60%', color: '#f59e0b', label: 'Fair' },
+                { pct: '80%', color: '#84cc16', label: 'Strong' },
+                { pct: '100%', color: '#10b981', label: 'Very strong' },
+            ];
+            const l = levels[Math.min(score, 4)];
+            fill.style.width = l.pct;
+            fill.style.background = l.color;
+            text.textContent = l.label;
+            text.style.color = l.color;
+        }
+
+        document.getElementById('reg-form').addEventListener('submit', function (e) {
+            const pw = document.getElementById('password').value;
+            const cp = document.getElementById('confirm_password').value;
+            if (pw !== cp) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return;
+            }
+            const btn = document.getElementById('reg-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account…';
+            btn.disabled = true;
+        });
+    </script>
+</body>
+
+</html>

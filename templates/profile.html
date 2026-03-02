@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile — NeuroGuard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .card-glass {
+            background: rgba(26, 22, 48, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+        }
+
+        .profile-hero {
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.25), rgba(247, 37, 133, 0.15));
+            border: 1px solid rgba(108, 99, 255, 0.25);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-hero::before {
+            content: '';
+            position: absolute;
+            right: -80px;
+            top: -80px;
+            width: 240px;
+            height: 240px;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .avatar-ring {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+            color: #fff;
+            margin: 0 auto 16px;
+            box-shadow: 0 8px 32px rgba(108, 99, 255, 0.4);
+            animation: heartbeat 2s ease-in-out infinite;
+        }
+
+        .profile-name {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .profile-email {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+        }
+
+        @media (max-width:1024px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .info-label {
+            font-size: 0.78rem;
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .stat-mini {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-mini .num {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .stat-mini .lbl {
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="topnav">
+        <a href="{{ url_for('dashboard') }}" class="brand">
+            <div class="pulse"><i class="fas fa-brain" style="color:#fff;font-size:16px;"></i></div> NeuroGuard
+        </a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('predict') }}"><i class="fas fa-calculator"></i> Predict</a></li>
+            <li><a href="{{ url_for('history') }}"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="{{ url_for('profile') }}" class="active"><i class="fas fa-user-circle"></i> Profile</a></li>
+            <li><a href="{{ url_for('logout') }}" class="btn-danger-nav"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="page-wrap">
+        <!-- Hero -->
+        <div class="profile-hero fade-up">
+            <div class="avatar-ring">{{ user.username[0]|upper }}</div>
+            <div class="profile-name">{{ user.username }}</div>
+            <div class="profile-email"><i class="fas fa-envelope"></i> {{ user.email }}</div>
+            <div style="margin-top:14px;">
+                <span class="badge badge-primary"><i class="fas fa-shield-alt"></i> Verified Member</span>
+                <span class="badge badge-info" style="margin-left:6px;"><i class="fas fa-chart-bar"></i> {{
+                    prediction_count }} Predictions</span>
+            </div>
+        </div>
+
+        <div class="profile-grid">
+            <!-- Account info -->
+            <div class="card-glass fade-up fade-up-1">
+                <div class="section-hdr"><i class="fas fa-user-cog"></i> Account Information</div>
+                <div class="info-row">
+                    <div class="info-icon" style="background:rgba(108,99,255,0.15);color:var(--primary);">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <div class="info-label">Username</div>
+                        <div class="info-value">{{ user.username }}</div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-icon" style="background:rgba(59,130,246,0.15);color:var(--info);">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div>
+                        <div class="info-label">Email Address</div>
+                        <div class="info-value">{{ user.email }}</div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-icon" style="background:rgba(16,185,129,0.15);color:var(--success);">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div>
+                        <div class="info-label">Member Since</div>
+                        <div class="info-value">{{ user.created_at.strftime('%B %d, %Y') }}</div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-icon" style="background:rgba(245,158,11,0.15);color:var(--warning);">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div>
+                        <div class="info-label">Total Predictions Made</div>
+                        <div class="info-value"><span class="badge badge-warning">{{ prediction_count }}</span></div>
+                    </div>
+                </div>
+                <div style="padding:20px 24px; border-top:1px solid var(--border); display:flex; gap:10px;">
+                    <a href="{{ url_for('predict') }}" class="btn btn-primary" style="font-size:0.85rem;">
+                        <i class="fas fa-calculator"></i> New Assessment
+                    </a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger" style="font-size:0.85rem;">
+                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sidebar stats -->
+            <div>
+                <div class="card-glass fade-up fade-up-2" style="margin-bottom:16px;">
+                    <div class="section-hdr"><i class="fas fa-chart-pie"></i> Your Stats</div>
+                    <div class="stat-mini">
+                        <div class="num" style="color:var(--primary);">{{ prediction_count }}</div>
+                        <div class="lbl">Total Assessments</div>
+                    </div>
+                    <div style="padding:0 24px 20px;">
+                        <a href="{{ url_for('history') }}" class="btn btn-outline btn-block" style="font-size:0.85rem;">
+                            <i class="fas fa-history"></i> View All History
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-glass fade-up fade-up-3">
+                    <div class="section-hdr"><i class="fas fa-lightbulb" style="color:var(--warning);"></i> Did You
+                        Know?</div>
+                    <div style="padding:16px; font-size:0.85rem; color:var(--muted); line-height:1.7;">
+                        <p>🧠 Regular health monitoring can reduce stroke risk by up to <strong
+                                style="color:#fff;">80%</strong>.</p>
+                        <p style="margin-top:10px;">📊 Keeping records of your risk scores helps doctors identify trends
+                            over time.</p>
+                        <p style="margin-top:10px;">💊 Early intervention is the most effective stroke prevention
+                            strategy.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

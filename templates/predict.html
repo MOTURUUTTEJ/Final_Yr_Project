@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stroke Risk Prediction — NeuroGuard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .predict-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .predict-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-glass {
+            background: rgba(26, 22, 48, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+        }
+
+        .result-card {
+            border-radius: 20px;
+            padding: 36px;
+            text-align: center;
+            margin-top: 24px;
+            border: 1px solid var(--border);
+            animation: fadeUp 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            border-radius: 20px;
+        }
+
+        .result-card.low {
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        .result-card.low::before {
+            box-shadow: inset 0 0 60px rgba(16, 185, 129, 0.12);
+        }
+
+        .result-card.medium {
+            background: rgba(245, 158, 11, 0.08);
+        }
+
+        .result-card.medium::before {
+            box-shadow: inset 0 0 60px rgba(245, 158, 11, 0.12);
+        }
+
+        .result-card.high {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .result-card.high::before {
+            box-shadow: inset 0 0 60px rgba(239, 68, 68, 0.15);
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            border: 4px solid;
+            position: relative;
+        }
+
+        .score-circle.low {
+            border-color: var(--success);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .score-circle.medium {
+            border-color: var(--warning);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+        }
+
+        .score-circle.high {
+            border-color: var(--danger);
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+        }
+
+        .score-number {
+            font-size: 2.6rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .score-unit {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .risk-label {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .recommendation-box {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .recommendation-box h5 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+        }
+
+        .recommendation-box p {
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .info-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(59, 130, 246, 0.12);
+            color: #60a5fa;
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin: 3px;
+        }
+
+        .factor-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.88rem;
+        }
+
+        .factor-row:last-child {
+            border-bottom: none;
+        }
+
+        .factor-row i {
+            color: var(--danger);
+            width: 16px;
+        }
+
+        .factor-row.ok i {
+            color: var(--success);
+        }
+
+        .step-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            background: rgba(108, 99, 255, 0.2);
+            color: var(--primary);
+            margin-right: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="topnav">
+        <a href="{{ url_for('dashboard') }}" class="brand">
+            <div class="pulse"><i class="fas fa-brain" style="color:#fff;font-size:16px;"></i></div>
+            NeuroGuard
+        </a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('predict') }}" class="active"><i class="fas fa-calculator"></i> Predict</a></li>
+            <li><a href="{{ url_for('history') }}"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i> Profile</a></li>
+            <li><a href="{{ url_for('logout') }}" class="btn-danger-nav"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+        </ul>
+        <div class="nav-hamburger"><i class="fas fa-bars"></i></div>
+    </nav>
+
+    <div class="page-wrap">
+        <!-- Page header -->
+        <div style="margin-bottom:24px;" class="fade-up">
+            <h1 style="font-size:1.8rem; font-weight:800; margin-bottom:6px;">
+                <i class="fas fa-calculator" style="color:var(--primary);"></i> Stroke Risk Assessment
+            </h1>
+            <p style="color:var(--muted);">Fill in your health details and our AI model will calculate your stroke risk
+                score.</p>
+        </div>
+
+        <div class="predict-grid">
+            <!-- Form -->
+            <div class="card-glass fade-up fade-up-1">
+                <div class="section-hdr"><i class="fas fa-clipboard-list"></i> Patient Information</div>
+                <div style="padding:24px;">
+                    {% if error %}
+                    <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                    {% endif %}
+
+                    <form method="POST" id="predict-form">
+
+                        <!-- Demographics -->
+                        <div class="section-title"><i class="fas fa-user"></i> Demographics</div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="age">Age (years)</label>
+                                <input type="number" class="form-control" id="age" name="age" min="1" max="120"
+                                    value="50" required placeholder="e.g. 55">
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select class="form-control" id="gender" name="gender" required>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="ever_married">Marital Status</label>
+                                <select class="form-control" id="ever_married" name="ever_married" required>
+                                    <option value="Yes">Married / Was Married</option>
+                                    <option value="No">Never Married</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="work_type">Work Type</label>
+                                <select class="form-control" id="work_type" name="work_type" required>
+                                    <option value="Private">Private Sector</option>
+                                    <option value="Self-employed">Self-employed</option>
+                                    <option value="Govt_job">Government Job</option>
+                                    <option value="Never_worked">Never Worked</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="residence_type">Residence Type</label>
+                            <select class="form-control" id="residence_type" name="residence_type" required>
+                                <option value="Urban">Urban</option>
+                                <option value="Rural">Rural</option>
+                            </select>
+                        </div>
+
+                        <!-- Health -->
+                        <div class="section-title"><i class="fas fa-heartbeat"></i> Health Metrics</div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="avg_glucose_level">Glucose Level (mg/dL)</label>
+                                <input type="number" class="form-control" id="avg_glucose_level"
+                                    name="avg_glucose_level" min="50" max="500" step="0.1" value="100" required
+                                    placeholder="Normal: 70–100">
+                            </div>
+                            <div class="form-group">
+                                <label for="bmi">BMI (Body Mass Index)</label>
+                                <input type="number" class="form-control" id="bmi" name="bmi" min="10" max="100"
+                                    step="0.1" value="25" required placeholder="Healthy: 18.5–24.9">
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="hypertension">Hypertension</label>
+                                <select class="form-control" id="hypertension" name="hypertension" required>
+                                    <option value="0">No</option>
+                                    <option value="1">Yes</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="heart_disease">Heart Disease</label>
+                                <select class="form-control" id="heart_disease" name="heart_disease" required>
+                                    <option value="0">No</option>
+                                    <option value="1">Yes</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Lifestyle -->
+                        <div class="section-title"><i class="fas fa-leaf"></i> Lifestyle</div>
+                        <div class="form-group">
+                            <label for="smoking_status">Smoking Status</label>
+                            <select class="form-control" id="smoking_status" name="smoking_status" required>
+                                <option value="never">Never Smoked</option>
+                                <option value="formerly">Formerly Smoked</option>
+                                <option value="smokes">Currently Smokes</option>
+                                <option value="Unknown">Unknown / Prefer not to say</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block btn-lg" id="predict-btn"
+                            style="margin-top:8px;">
+                            <i class="fas fa-brain"></i> Analyse Risk Now
+                        </button>
+                    </form>
+
+                    <!-- Result -->
+                    {% if prediction %}
+                    {% set score = prediction.risk_score %}
+                    {% set level = prediction.risk_level %}
+                    {% set rclass = 'low' if score < 15 else ('medium' if score < 40 else 'high' ) %} <div
+                        class="result-card {{ rclass }}" id="result-section">
+                        <div class="score-circle {{ rclass }}">
+                            <div
+                                class="score-number {% if rclass == 'low' %}risk-low{% elif rclass == 'medium' %}risk-medium{% else %}risk-high{% endif %}">
+                                {{ score }}%
+                            </div>
+                            <div class="score-unit">Risk Score</div>
+                        </div>
+
+                        <div
+                            class="risk-label {% if rclass == 'low' %}risk-low{% elif rclass == 'medium' %}risk-medium{% else %}risk-high{% endif %}">
+                            {% if rclass == 'low' %}
+                            <i class="fas fa-check-circle"></i> Low Risk
+                            {% elif rclass == 'medium' %}
+                            <i class="fas fa-exclamation-triangle"></i> Medium Risk
+                            {% else %}
+                            <i class="fas fa-times-circle"></i> High Risk
+                            {% endif %}
+                        </div>
+
+                        <!-- Progress bar -->
+                        <div class="progress-track" style="margin:16px 0;">
+                            <div class="progress-fill {% if rclass == 'low' %}fill-low{% elif rclass == 'medium' %}fill-medium{% else %}fill-high{% endif %}"
+                                id="progress-bar" style="width: 0%;"></div>
+                        </div>
+                        <div style="font-size:0.8rem; color:var(--muted); margin-bottom:16px;">Risk probability: {{
+                            score }}%</div>
+
+                        <div class="recommendation-box">
+                            <h5>🩺 Medical Recommendations</h5>
+                            {% if rclass == 'low' %}
+                            <p>✅ <strong>Great news!</strong> Your stroke risk is low. Continue your healthy lifestyle —
+                                regular exercise, balanced diet, and annual health check-ups are key to staying safe.
+                            </p>
+                            {% elif rclass == 'medium' %}
+                            <p>⚠️ <strong>Moderate caution advised.</strong> Consult your doctor to review your risk
+                                factors. Monitor your blood pressure and glucose levels regularly. Small lifestyle
+                                changes can make a big difference.</p>
+                            {% else %}
+                            <p>🚨 <strong>Please seek medical attention.</strong> Your risk profile is elevated. Contact
+                                a healthcare professional promptly to discuss managing hypertension, weight, glucose
+                                levels, and quitting smoking if applicable.</p>
+                            {% endif %}
+                        </div>
+
+                        <div style="margin-top:16px;">
+                            <a href="{{ url_for('predict') }}" class="btn btn-outline" style="font-size:0.85rem;">
+                                <i class="fas fa-redo"></i> New Assessment
+                            </a>
+                            <a href="{{ url_for('history') }}" class="btn btn-primary"
+                                style="font-size:0.85rem; margin-left:8px;">
+                                <i class="fas fa-history"></i> View History
+                            </a>
+                        </div>
+                </div>
+
+                <script>
+                    // Animate progress bar
+                    setTimeout(() => {
+                        document.getElementById('progress-bar').style.width = '{{ score }}%';
+                    }, 300);
+                    // Scroll to result
+                    document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                </script>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div>
+            <div class="card-glass fade-up fade-up-2" style="margin-bottom:16px;">
+                <div class="section-hdr"><i class="fas fa-info-circle"></i> About Stroke</div>
+                <div style="padding:16px; font-size:0.88rem; color:var(--muted); line-height:1.7;">
+                    <p>A stroke occurs when blood flow to the brain is blocked or a blood vessel bursts. Early risk
+                        detection can be life-saving.</p>
+                    <div style="margin-top:14px;">
+                        <div class="info-chip"><i class="fas fa-clock"></i> Every 40 sec a stroke occurs</div>
+                        <div class="info-chip"><i class="fas fa-user-md"></i> 80% are preventable</div>
+                        <div class="info-chip"><i class="fas fa-brain"></i> 5th leading cause of death</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-glass fade-up fade-up-3" style="margin-bottom:16px;">
+                <div class="section-hdr"><i class="fas fa-fire-alt" style="color:var(--danger);"></i> Key Risk Factors
+                </div>
+                <div style="padding:16px;">
+                    <div class="factor-row"><i class="fas fa-birthday-cake"></i> Advanced age (65+)</div>
+                    <div class="factor-row"><i class="fas fa-tint"></i> Hypertension</div>
+                    <div class="factor-row"><i class="fas fa-heartbeat"></i> Heart disease</div>
+                    <div class="factor-row"><i class="fas fa-candy-cane"></i> High glucose (diabetes)</div>
+                    <div class="factor-row"><i class="fas fa-weight"></i> Obesity (BMI > 30)</div>
+                    <div class="factor-row"><i class="fas fa-smoking"></i> Smoking</div>
+                </div>
+            </div>
+
+            <div class="card-glass fade-up fade-up-4">
+                <div class="section-hdr"><i class="fas fa-shield-alt" style="color:var(--success);"></i> Prevention Tips
+                </div>
+                <div style="padding:16px;">
+                    <div class="factor-row ok"><i class="fas fa-check"></i> Control blood pressure</div>
+                    <div class="factor-row ok"><i class="fas fa-check"></i> Exercise 30 min/day</div>
+                    <div class="factor-row ok"><i class="fas fa-check"></i> Manage blood sugar</div>
+                    <div class="factor-row ok"><i class="fas fa-check"></i> Eat a balanced diet</div>
+                    <div class="factor-row ok"><i class="fas fa-check"></i> Quit smoking</div>
+                    <div class="factor-row ok"><i class="fas fa-check"></i> Limit alcohol intake</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        document.getElementById('predict-form').addEventListener('submit', function () {
+            const btn = document.getElementById('predict-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analysing…';
+            btn.disabled = true;
+        });
+    </script>
+</body>
+
+</html>

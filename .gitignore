@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+instance/
+*.db
+.env
+fix_output.txt
+fix_output2.txt
+debug_retrain.py
+fix_model.py
