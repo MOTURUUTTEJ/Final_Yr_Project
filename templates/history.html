@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="space">
 
 <head>
     <meta charset="UTF-8">
@@ -78,9 +78,15 @@
 </head>
 
 <body>
+    <div class="aurora">
+        <div class="aurora-blob aurora-blob-1"></div>
+        <div class="aurora-blob aurora-blob-2"></div>
+        <div class="aurora-blob aurora-blob-3"></div>
+    </div>
+    <div class="particles" id="particles"></div>
     <nav class="topnav">
         <a href="{{ url_for('dashboard') }}" class="brand">
-            <div class="pulse"><i class="fas fa-brain" style="color:#fff;font-size:16px;"></i></div>
+            <div class="pulse pulse-ring"><i class="fas fa-brain" style="color:#fff;font-size:16px;"></i></div>
             NeuroGuard
         </a>
         <ul class="nav-links">
@@ -88,9 +94,38 @@
             <li><a href="{{ url_for('predict') }}"><i class="fas fa-calculator"></i> Predict</a></li>
             <li><a href="{{ url_for('history') }}" class="active"><i class="fas fa-history"></i> History</a></li>
             <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i> Profile</a></li>
+            <li class="theme-wrapper">
+                <button class="theme-btn" id="themeToggle"><span class="theme-dot"></span><span
+                        id="themeName">Theme</span><i class="fas fa-chevron-down"
+                        style="font-size:0.7rem;"></i></button>
+                <div class="theme-dropdown" id="themeDropdown">
+                    <h6>Choose Theme</h6>
+                    <div class="theme-option active" data-theme="space">
+                        <div class="theme-swatch swatch-space"></div><span>Deep Space</span><i
+                            class="fas fa-check theme-check"></i>
+                    </div>
+                    <div class="theme-option" data-theme="ocean">
+                        <div class="theme-swatch swatch-ocean"></div><span>Midnight Ocean</span><i
+                            class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                    <div class="theme-option" data-theme="forest">
+                        <div class="theme-swatch swatch-forest"></div><span>Emerald Forest</span><i
+                            class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                    <div class="theme-option" data-theme="crimson">
+                        <div class="theme-swatch swatch-crimson"></div><span>Crimson Night</span><i
+                            class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                    <div class="theme-option" data-theme="arctic">
+                        <div class="theme-swatch swatch-arctic"></div><span>Arctic (Light)</span><i
+                            class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                </div>
+            </li>
             <li><a href="{{ url_for('logout') }}" class="btn-danger-nav"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </li>
         </ul>
+        <div class="nav-hamburger"><i class="fas fa-bars"></i></div>
     </nav>
 
     <div class="page-wrap">
@@ -193,6 +228,24 @@
     </div>
 
     <script>
+        // Theme System
+        const TN = { space: 'Deep Space', ocean: 'Ocean', forest: 'Forest', crimson: 'Crimson', arctic: 'Arctic' };
+        function applyTheme(t) {
+            document.documentElement.setAttribute('data-theme', t);
+            localStorage.setItem('ng-theme', t);
+            document.getElementById('themeName').textContent = TN[t] || 'Theme';
+            document.querySelectorAll('.theme-option').forEach(o => { const a = o.dataset.theme === t; o.classList.toggle('active', a); o.querySelector('.theme-check').style.display = a ? '' : 'none'; });
+        }
+        applyTheme(localStorage.getItem('ng-theme') || 'space');
+        const ttgl = document.getElementById('themeToggle'), tdd = document.getElementById('themeDropdown');
+        ttgl.addEventListener('click', e => { e.stopPropagation(); tdd.classList.toggle('open'); });
+        document.addEventListener('click', () => tdd.classList.remove('open'));
+        tdd.addEventListener('click', e => e.stopPropagation());
+        document.querySelectorAll('.theme-option').forEach(o => o.addEventListener('click', () => { applyTheme(o.dataset.theme); tdd.classList.remove('open'); }));
+        // Particles
+        const pc = document.getElementById('particles');
+        for (let i = 0; i < 18; i++) { const p = document.createElement('div'); p.className = 'particle'; const s = Math.random() * 4 + 2; p.style.cssText = `width:${s}px;height:${s}px;left:${Math.random() * 100}%;animation-duration:${Math.random() * 14 + 8}s;animation-delay:-${Math.random() * 12}s;`; pc.appendChild(p); }
+        // Filter
         function filterTable(type, btn) {
             document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');

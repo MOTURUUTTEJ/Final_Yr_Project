@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="space">
 
 <head>
     <meta charset="UTF-8">
@@ -22,20 +22,13 @@
             }
         }
 
-        .card-glass {
-            background: rgba(26, 22, 48, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-        }
-
         .result-card {
-            border-radius: 20px;
-            padding: 36px;
+            border-radius: 24px;
+            padding: 40px 36px;
             text-align: center;
-            margin-top: 24px;
+            margin-top: 28px;
             border: 1px solid var(--border);
-            animation: fadeUp 0.5s ease;
+            animation: scaleIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
             position: relative;
             overflow: hidden;
         }
@@ -45,7 +38,7 @@
             position: absolute;
             inset: 0;
             pointer-events: none;
-            border-radius: 20px;
+            border-radius: 24px;
         }
 
         .result-card.low {
@@ -53,7 +46,7 @@
         }
 
         .result-card.low::before {
-            box-shadow: inset 0 0 60px rgba(16, 185, 129, 0.12);
+            box-shadow: inset 0 0 80px rgba(16, 185, 129, 0.12);
         }
 
         .result-card.medium {
@@ -61,61 +54,54 @@
         }
 
         .result-card.medium::before {
-            box-shadow: inset 0 0 60px rgba(245, 158, 11, 0.12);
+            box-shadow: inset 0 0 80px rgba(245, 158, 11, 0.12);
         }
 
         .result-card.high {
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.10);
         }
 
         .result-card.high::before {
-            box-shadow: inset 0 0 60px rgba(239, 68, 68, 0.15);
+            box-shadow: inset 0 0 80px rgba(239, 68, 68, 0.15);
         }
 
-        .score-circle {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
+        /* SVG ring */
+        .ring-wrap {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 20px;
+        }
+
+        .ring-wrap svg {
+            transform: rotate(-90deg);
+        }
+
+        .ring-center {
+            position: absolute;
+            inset: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
-            border: 4px solid;
-            position: relative;
-        }
-
-        .score-circle.low {
-            border-color: var(--success);
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
-        }
-
-        .score-circle.medium {
-            border-color: var(--warning);
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
-        }
-
-        .score-circle.high {
-            border-color: var(--danger);
-            box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
         }
 
         .score-number {
-            font-size: 2.6rem;
+            font-size: 2.4rem;
             font-weight: 800;
             line-height: 1;
         }
 
         .score-unit {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--muted);
             margin-top: 2px;
         }
 
         .risk-label {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .recommendation-box {
@@ -124,6 +110,10 @@
             padding: 20px;
             margin-top: 20px;
             text-align: left;
+        }
+
+        [data-theme="arctic"] .recommendation-box {
+            background: rgba(108, 99, 255, 0.06);
         }
 
         .recommendation-box h5 {
@@ -137,7 +127,8 @@
 
         .recommendation-box p {
             font-size: 0.92rem;
-            line-height: 1.6;
+            line-height: 1.65;
+            color: var(--text);
         }
 
         .info-chip {
@@ -147,19 +138,29 @@
             background: rgba(59, 130, 246, 0.12);
             color: #60a5fa;
             border-radius: 8px;
-            padding: 4px 10px;
+            padding: 5px 12px;
             font-size: 0.78rem;
             font-weight: 600;
             margin: 3px;
+            transition: transform 0.2s;
+        }
+
+        .info-chip:hover {
+            transform: translateY(-2px);
         }
 
         .factor-row {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 8px 0;
+            padding: 9px 0;
             border-bottom: 1px solid var(--border);
             font-size: 0.88rem;
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .factor-row:hover {
+            transform: translateX(4px);
         }
 
         .factor-row:last-child {
@@ -173,6 +174,17 @@
 
         .factor-row.ok i {
             color: var(--success);
+        }
+
+        /* Animated form labels */
+        .form-group {
+            position: relative;
+        }
+
+        /* Progress bar enhanced */
+        .progress-track {
+            height: 12px;
+            margin: 18px 0;
         }
 
         .step-badge {
@@ -192,27 +204,71 @@
 </head>
 
 <body>
+    <!-- Aurora -->
+    <div class="aurora">
+        <div class="aurora-blob aurora-blob-1"></div>
+        <div class="aurora-blob aurora-blob-2"></div>
+        <div class="aurora-blob aurora-blob-3"></div>
+    </div>
+
+    <div class="particles" id="particles"></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Navbar -->
     <nav class="topnav">
         <a href="{{ url_for('dashboard') }}" class="brand">
-            <div class="pulse"><i class="fas fa-brain" style="color:#fff;font-size:16px;"></i></div>
+            <div class="pulse pulse-ring"><i class="fas fa-brain" style="color:#fff;font-size:16px;"></i></div>
             NeuroGuard
         </a>
         <ul class="nav-links">
             <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
             <li><a href="{{ url_for('predict') }}" class="active"><i class="fas fa-calculator"></i> Predict</a></li>
             <li><a href="{{ url_for('history') }}"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="{{ url_for('analytics') }}"><i class="fas fa-chart-line"></i> Analytics</a></li>
             <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i> Profile</a></li>
+            <!-- Theme Selector -->
+            <li class="theme-wrapper">
+                <button class="theme-btn" id="themeToggle">
+                    <span class="theme-dot"></span>
+                    <span id="themeName">Theme</span>
+                    <i class="fas fa-chevron-down" style="font-size:0.7rem;"></i>
+                </button>
+                <div class="theme-dropdown" id="themeDropdown">
+                    <h6>Choose Theme</h6>
+                    <div class="theme-option active" data-theme="space">
+                        <div class="theme-swatch swatch-space"></div><span>Deep Space</span>
+                        <i class="fas fa-check theme-check"></i>
+                    </div>
+                    <div class="theme-option" data-theme="ocean">
+                        <div class="theme-swatch swatch-ocean"></div><span>Midnight Ocean</span>
+                        <i class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                    <div class="theme-option" data-theme="forest">
+                        <div class="theme-swatch swatch-forest"></div><span>Emerald Forest</span>
+                        <i class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                    <div class="theme-option" data-theme="crimson">
+                        <div class="theme-swatch swatch-crimson"></div><span>Crimson Night</span>
+                        <i class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                    <div class="theme-option" data-theme="arctic">
+                        <div class="theme-swatch swatch-arctic"></div><span>Arctic (Light)</span>
+                        <i class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                </div>
+            </li>
             <li><a href="{{ url_for('logout') }}" class="btn-danger-nav"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </li>
         </ul>
-        <div class="nav-hamburger"><i class="fas fa-bars"></i></div>
+        <div class="nav-hamburger" id="navHamburger"><i class="fas fa-bars"></i></div>
     </nav>
 
-    <div class="page-wrap">
+    <div class="page-wrap" style="position:relative;z-index:1;">
         <!-- Page header -->
         <div style="margin-bottom:24px;" class="fade-up">
-            <h1 style="font-size:1.8rem; font-weight:800; margin-bottom:6px;">
-                <i class="fas fa-calculator" style="color:var(--primary);"></i> Stroke Risk Assessment
+            <h1 style="font-size:1.9rem; font-weight:800; margin-bottom:6px;">
+                <i class="fas fa-calculator" style="color:var(--primary);"></i>
+                Stroke Risk Assessment
             </h1>
             <p style="color:var(--muted);">Fill in your health details and our AI model will calculate your stroke risk
                 score.</p>
@@ -223,6 +279,18 @@
             <div class="card-glass fade-up fade-up-1">
                 <div class="section-hdr"><i class="fas fa-clipboard-list"></i> Patient Information</div>
                 <div style="padding:24px;">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div
+                        class="alert {% if category == 'error' %}alert-danger{% elif category == 'success' %}alert-success{% else %}alert-info{% endif %}">
+                        <i
+                            class="fas {% if category == 'error' %}fa-exclamation-circle{% elif category == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
                     {% if error %}
                     <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
                     {% endif %}
@@ -273,7 +341,7 @@
                             </select>
                         </div>
 
-                        <!-- Health -->
+                        <!-- Health Metrics -->
                         <div class="section-title"><i class="fas fa-heartbeat"></i> Health Metrics</div>
                         <div class="grid-2">
                             <div class="form-group">
@@ -319,7 +387,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-block btn-lg" id="predict-btn"
-                            style="margin-top:8px;">
+                            style="margin-top:12px;">
                             <i class="fas fa-brain"></i> Analyse Risk Now
                         </button>
                     </form>
@@ -329,13 +397,23 @@
                     {% set score = prediction.risk_score %}
                     {% set level = prediction.risk_level %}
                     {% set rclass = 'low' if score < 15 else ('medium' if score < 40 else 'high' ) %} <div
-                        class="result-card {{ rclass }}" id="result-section">
-                        <div class="score-circle {{ rclass }}">
-                            <div
-                                class="score-number {% if rclass == 'low' %}risk-low{% elif rclass == 'medium' %}risk-medium{% else %}risk-high{% endif %}">
-                                {{ score }}%
+                        class="result-card {{ rclass }} {% if rclass == 'low' %}result-glow-low{% elif rclass == 'medium' %}result-glow-medium{% else %}result-glow-high{% endif %}"
+                        id="result-section">
+
+                        <!-- SVG Ring -->
+                        <div class="ring-wrap">
+                            <svg width="160" height="160" viewBox="0 0 100 100">
+                                <circle class="score-ring-track" cx="50" cy="50" r="45" />
+                                <circle class="score-ring-fill" cx="50" cy="50" r="45" id="ring-fill"
+                                    stroke="{% if rclass == 'low' %}#10b981{% elif rclass == 'medium' %}#f59e0b{% else %}#ef4444{% endif %}" />
+                            </svg>
+                            <div class="ring-center">
+                                <div
+                                    class="score-number {% if rclass == 'low' %}risk-low{% elif rclass == 'medium' %}risk-medium{% else %}risk-high{% endif %}">
+                                    <span id="score-display">0</span>%
+                                </div>
+                                <div class="score-unit">Risk Score</div>
                             </div>
-                            <div class="score-unit">Risk Score</div>
                         </div>
 
                         <div
@@ -352,10 +430,11 @@
                         <!-- Progress bar -->
                         <div class="progress-track" style="margin:16px 0;">
                             <div class="progress-fill {% if rclass == 'low' %}fill-low{% elif rclass == 'medium' %}fill-medium{% else %}fill-high{% endif %}"
-                                id="progress-bar" style="width: 0%;"></div>
+                                id="progress-bar" style="width:0%;"></div>
                         </div>
-                        <div style="font-size:0.8rem; color:var(--muted); margin-bottom:16px;">Risk probability: {{
-                            score }}%</div>
+                        <div style="font-size:0.8rem; color:var(--muted); margin-bottom:18px;">
+                            Risk probability: {{ score }}%
+                        </div>
 
                         <div class="recommendation-box">
                             <h5>🩺 Medical Recommendations</h5>
@@ -374,23 +453,91 @@
                             {% endif %}
                         </div>
 
-                        <div style="margin-top:16px;">
-                            <a href="{{ url_for('predict') }}" class="btn btn-outline" style="font-size:0.85rem;">
+                        <div style="margin-top:20px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                            <a href="{{ url_for('predict') }}" class="btn btn-outline">
                                 <i class="fas fa-redo"></i> New Assessment
                             </a>
-                            <a href="{{ url_for('history') }}" class="btn btn-primary"
-                                style="font-size:0.85rem; margin-left:8px;">
+                            <a href="{{ url_for('history') }}" class="btn btn-primary">
                                 <i class="fas fa-history"></i> View History
                             </a>
+                            <a href="{{ url_for('analytics') }}" class="btn btn-outline"
+                                style="border-color:rgba(16,185,129,0.5);color:var(--success);">
+                                <i class="fas fa-chart-line"></i> Analytics
+                            </a>
+                        </div>
+
+                        {% if prediction.compare is defined and prediction.compare %}
+                        <!-- Population Comparison Panel -->
+                        <div
+                            style="margin-top:20px; background:rgba(255,255,255,0.04); border-radius:14px; padding:18px; text-align:left;">
+                            <h5
+                                style="font-size:0.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;">
+                                <i class="fas fa-users" style="color:var(--info);"></i> Compare with Population (Age {{
+                                prediction.compare.age_label }})
+                            </h5>
+                            <div
+                                style="display:flex;align-items:center;justify-content:space-around;gap:16px;flex-wrap:wrap;">
+                                <div style="text-align:center;">
+                                    <div style="font-size:1.6rem;font-weight:800;color:var(--primary);">{{
+                                        prediction.compare.your_score }}%</div>
+                                    <div style="font-size:0.78rem;color:var(--muted);margin-top:4px;">Your Score</div>
+                                </div>
+                                <div style="font-size:1.4rem;">vs</div>
+                                <div style="text-align:center;">
+                                    <div style="font-size:1.6rem;font-weight:800;color:var(--muted);">{{
+                                        prediction.compare.pop_avg }}%</div>
+                                    <div style="font-size:0.78rem;color:var(--muted);margin-top:4px;">Population Avg
+                                    </div>
+                                </div>
+                                <div style="text-align:center;">
+                                    <div
+                                        style="font-size:1.4rem;font-weight:800;color:{% if prediction.compare.higher %}var(--danger){% else %}var(--success){% endif %};">
+                                        {% if prediction.compare.higher %}+{% endif %}{{ prediction.compare.diff }}%
+                                    </div>
+                                    <div style="font-size:0.78rem;color:var(--muted);margin-top:4px;">{% if
+                                        prediction.compare.higher %}Above{% else %}Below{% endif %} Average</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Dataset save notice -->
+                        <div
+                            style="margin-top:16px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:0.84rem;color:#34d399;">
+                            <i class="fas fa-database"></i>
+                            <span>Your prediction data was saved to the training dataset, helping improve the AI
+                                model!</span>
                         </div>
                 </div>
 
                 <script>
-                    // Animate progress bar
+                    const score = {{ score }};
+                    const circumference = 2 * Math.PI * 45; // 282.7
+                    const fill = document.getElementById('ring-fill');
+                    const scoreDisplay = document.getElementById('score-display');
+
+                    fill.style.strokeDasharray = circumference;
+                    fill.style.strokeDashoffset = circumference;
+
                     setTimeout(() => {
-                        document.getElementById('progress-bar').style.width = '{{ score }}%';
-                    }, 300);
-                    // Scroll to result
+                        // Animate ring
+                        const offset = circumference - (score / 100) * circumference;
+                        fill.style.transition = 'stroke-dashoffset 1.6s cubic-bezier(0.4,0,0.2,1)';
+                        fill.style.strokeDashoffset = offset;
+
+                        // Animate progress bar
+                        document.getElementById('progress-bar').style.width = score + '%';
+
+                        // Count up score
+                        let current = 0;
+                        const step = score / 80;
+                        const timer = setInterval(() => {
+                            current += step;
+                            if (current >= score) { current = score; clearInterval(timer); }
+                            scoreDisplay.textContent = Math.floor(current);
+                        }, 20);
+                    }, 400);
+
                     document.getElementById('result-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 </script>
                 {% endif %}
@@ -442,10 +589,62 @@
     </div>
 
     <script>
+        /* ===== THEME ===== */
+        const THEME_NAMES = { space: 'Deep Space', ocean: 'Ocean', forest: 'Forest', crimson: 'Crimson', arctic: 'Arctic' };
+        function applyTheme(t) {
+            document.documentElement.setAttribute('data-theme', t);
+            localStorage.setItem('ng-theme', t);
+            document.getElementById('themeName').textContent = THEME_NAMES[t] || 'Theme';
+            document.querySelectorAll('.theme-option').forEach(o => {
+                const act = o.dataset.theme === t;
+                o.classList.toggle('active', act);
+                o.querySelector('.theme-check').style.display = act ? '' : 'none';
+            });
+        }
+        applyTheme(localStorage.getItem('ng-theme') || 'space');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeDropdown = document.getElementById('themeDropdown');
+        themeToggle.addEventListener('click', e => { e.stopPropagation(); themeDropdown.classList.toggle('open'); });
+        document.addEventListener('click', () => themeDropdown.classList.remove('open'));
+        themeDropdown.addEventListener('click', e => e.stopPropagation());
+        document.querySelectorAll('.theme-option').forEach(opt => {
+            opt.addEventListener('click', () => { applyTheme(opt.dataset.theme); themeDropdown.classList.remove('open'); });
+        });
+
+        /* ===== PARTICLES ===== */
+        const pc = document.getElementById('particles');
+        for (let i = 0; i < 20; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const sz = Math.random() * 4 + 2;
+            p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random() * 100}%;animation-duration:${Math.random() * 14 + 8}s;animation-delay:-${Math.random() * 12}s;`;
+            pc.appendChild(p);
+        }
+
+        /* ===== PREDICT BUTTON ===== */
         document.getElementById('predict-form').addEventListener('submit', function () {
             const btn = document.getElementById('predict-btn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analysing…';
+            btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Analysing…';
             btn.disabled = true;
+            btn.classList.add('btn-shimmer');
+        });
+
+        /* ===== RIPPLE ===== */
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size / 2}px;top:${e.clientY - rect.top - size / 2}px;`;
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        /* ===== MOBILE NAV ===== */
+        document.getElementById('navHamburger').addEventListener('click', () => {
+            // simple fallback — open mobile nav if present
         });
     </script>
 </body>

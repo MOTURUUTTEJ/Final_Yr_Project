@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="space">
 
 <head>
     <meta charset="UTF-8">
@@ -11,10 +11,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         .hero {
-            background: linear-gradient(135deg, rgba(108, 99, 255, 0.2) 0%, rgba(247, 37, 133, 0.1) 100%);
+            background: linear-gradient(135deg, rgba(108, 99, 255, 0.18) 0%, rgba(247, 37, 133, 0.10) 100%);
             border: 1px solid rgba(108, 99, 255, 0.25);
             border-radius: 24px;
-            padding: 36px 40px;
+            padding: 40px 44px;
             margin-bottom: 28px;
             position: relative;
             overflow: hidden;
@@ -25,25 +25,64 @@
             position: absolute;
             right: -60px;
             top: -60px;
-            width: 260px;
-            height: 260px;
-            background: radial-gradient(circle, rgba(108, 99, 255, 0.2) 0%, transparent 70%);
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.22) 0%, transparent 70%);
             border-radius: 50%;
+            animation: heroBlob 6s ease-in-out infinite alternate;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            left: 60%;
+            bottom: -40px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(247, 37, 133, 0.14) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: heroBlob2 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes heroBlob {
+            from {
+                transform: scale(1) rotate(0deg);
+            }
+
+            to {
+                transform: scale(1.2) rotate(30deg);
+            }
+        }
+
+        @keyframes heroBlob2 {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.4) translateX(-20px);
+            }
         }
 
         .hero h1 {
-            font-size: 1.9rem;
+            font-size: 2rem;
             font-weight: 800;
             margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
         }
 
         .hero p {
             color: var(--muted);
             font-size: 1rem;
+            position: relative;
+            z-index: 1;
         }
 
         .hero .cta {
-            margin-top: 20px;
+            margin-top: 22px;
+            position: relative;
+            z-index: 1;
         }
 
         .stats-grid {
@@ -71,13 +110,6 @@
             }
         }
 
-        .card-glass {
-            background: rgba(26, 22, 48, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-        }
-
         .tip-item {
             display: flex;
             align-items: flex-start;
@@ -85,6 +117,11 @@
             padding: 10px 0;
             border-bottom: 1px solid var(--border);
             font-size: 0.88rem;
+            transition: transform 0.2s;
+        }
+
+        .tip-item:hover {
+            transform: translateX(4px);
         }
 
         .tip-item:last-child {
@@ -99,6 +136,11 @@
             align-items: center;
             justify-content: center;
             font-size: 0.8rem;
+            transition: transform 0.2s;
+        }
+
+        .tip-item:hover .tip-icon {
+            transform: scale(1.15);
         }
 
         .tip-text strong {
@@ -123,17 +165,36 @@
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border);
             margin-bottom: 10px;
-            transition: all 0.2s;
+            transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quick-action::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary);
+            transform: scaleY(0);
+            transition: transform 0.25s ease;
+            border-radius: 0 2px 2px 0;
         }
 
         .quick-action:hover {
             background: rgba(108, 99, 255, 0.12);
             border-color: rgba(108, 99, 255, 0.3);
             color: #fff;
-            transform: translateX(4px);
+            transform: translateX(6px);
         }
 
-        .quick-action .qa-icon {
+        .quick-action:hover::before {
+            transform: scaleY(1);
+        }
+
+        .qa-icon {
             width: 40px;
             height: 40px;
             border-radius: 12px;
@@ -141,22 +202,33 @@
             align-items: center;
             justify-content: center;
             font-size: 1rem;
+            transition: transform 0.3s;
         }
 
-        .quick-action .qa-text strong {
+        .quick-action:hover .qa-icon {
+            transform: rotate(-8deg) scale(1.1);
+        }
+
+        .qa-text strong {
             display: block;
             font-size: 0.9rem;
             font-weight: 600;
         }
 
-        .quick-action .qa-text small {
+        .qa-text small {
             color: var(--muted);
             font-size: 0.78rem;
         }
 
-        .quick-action .qa-arrow {
+        .qa-arrow {
             margin-left: auto;
             color: var(--muted);
+            transition: transform 0.25s;
+        }
+
+        .quick-action:hover .qa-arrow {
+            transform: translateX(4px);
+            color: var(--primary);
         }
 
         .empty-state {
@@ -169,39 +241,148 @@
             font-size: 3rem;
             margin-bottom: 12px;
             opacity: 0.3;
+            display: block;
         }
 
         .empty-state p {
             margin-bottom: 16px;
         }
+
+        /* Animated welcome text */
+        .wave {
+            display: inline-block;
+            animation: wave 1.8s ease-in-out infinite;
+            transform-origin: 70% 70%;
+        }
+
+        @keyframes wave {
+
+            0%,
+            100% {
+                transform: rotate(0);
+            }
+
+            15% {
+                transform: rotate(25deg);
+            }
+
+            30% {
+                transform: rotate(-10deg);
+            }
+
+            40% {
+                transform: rotate(20deg);
+            }
+
+            50% {
+                transform: rotate(-5deg);
+            }
+
+            60% {
+                transform: rotate(10deg);
+            }
+
+            70% {
+                transform: rotate(0);
+            }
+        }
     </style>
 </head>
 
 <body>
+    <!-- Aurora background -->
+    <div class="aurora">
+        <div class="aurora-blob aurora-blob-1"></div>
+        <div class="aurora-blob aurora-blob-2"></div>
+        <div class="aurora-blob aurora-blob-3"></div>
+    </div>
+
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <!-- Navbar -->
     <nav class="topnav">
         <a href="{{ url_for('dashboard') }}" class="brand">
-            <div class="pulse"><i class="fas fa-brain" style="color:#fff;font-size:16px;"></i></div>
+            <div class="pulse pulse-ring"><i class="fas fa-brain" style="color:#fff;font-size:16px;"></i></div>
             NeuroGuard
         </a>
         <ul class="nav-links">
             <li><a href="{{ url_for('dashboard') }}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
             <li><a href="{{ url_for('predict') }}"><i class="fas fa-calculator"></i> Predict</a></li>
             <li><a href="{{ url_for('history') }}"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="{{ url_for('analytics') }}"><i class="fas fa-chart-line"></i> Analytics</a></li>
             <li><a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i> Profile</a></li>
+
+            <!-- Theme Selector -->
+            <li class="theme-wrapper">
+                <button class="theme-btn" id="themeToggle" aria-label="Switch theme">
+                    <span class="theme-dot"></span>
+                    <span id="themeName">Theme</span>
+                    <i class="fas fa-chevron-down" style="font-size:0.7rem;"></i>
+                </button>
+                <div class="theme-dropdown" id="themeDropdown">
+                    <h6>Choose Theme</h6>
+                    <div class="theme-option active" data-theme="space">
+                        <div class="theme-swatch swatch-space"></div>
+                        <span>Deep Space</span>
+                        <i class="fas fa-check theme-check"></i>
+                    </div>
+                    <div class="theme-option" data-theme="ocean">
+                        <div class="theme-swatch swatch-ocean"></div>
+                        <span>Midnight Ocean</span>
+                        <i class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                    <div class="theme-option" data-theme="forest">
+                        <div class="theme-swatch swatch-forest"></div>
+                        <span>Emerald Forest</span>
+                        <i class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                    <div class="theme-option" data-theme="crimson">
+                        <div class="theme-swatch swatch-crimson"></div>
+                        <span>Crimson Night</span>
+                        <i class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                    <div class="theme-option" data-theme="arctic">
+                        <div class="theme-swatch swatch-arctic"></div>
+                        <span>Arctic (Light)</span>
+                        <i class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                </div>
+            </li>
+
             <li><a href="{{ url_for('logout') }}" class="btn-danger-nav"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </li>
         </ul>
-        <div class="nav-hamburger"><i class="fas fa-bars"></i></div>
+        <div class="nav-hamburger" id="navHamburger"><i class="fas fa-bars"></i></div>
     </nav>
 
-    <div class="page-wrap">
+    <!-- Mobile nav -->
+    <div class="mobile-nav" id="mobileNav">
+        <div class="mobile-nav-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <span style="font-weight:800;font-size:1.1rem;color:var(--text);">NeuroGuard</span>
+                <i class="fas fa-times" id="mobileClose"
+                    style="cursor:pointer;font-size:1.2rem;color:var(--muted);"></i>
+            </div>
+            <a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="{{ url_for('predict') }}"><i class="fas fa-calculator"></i> Predict</a>
+            <a href="{{ url_for('history') }}"><i class="fas fa-history"></i> History</a>
+            <a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i> Profile</a>
+            <a href="{{ url_for('logout') }}" style="color:#f87171;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+        <div style="flex:1;" id="mobileOverlay"></div>
+    </div>
+
+    <div class="page-wrap" style="position:relative;z-index:1;">
         <!-- Hero -->
         <div class="hero fade-up">
-            <h1>Welcome back, {{ username }} 👋</h1>
+            <h1>Welcome back, {{ username }} <span class="wave">👋</span></h1>
             <p>Monitor your stroke risk and track your health journey with AI-powered insights</p>
             <div class="cta">
-                <a href="{{ url_for('predict') }}" class="btn btn-primary">
+                <a href="{{ url_for('predict') }}" class="btn btn-primary btn-lg" id="predict-cta">
                     <i class="fas fa-plus-circle"></i> New Prediction
                 </a>
                 <a href="{{ url_for('history') }}" class="btn btn-outline" style="margin-left:10px;">
@@ -212,21 +393,21 @@
 
         <!-- Stats -->
         <div class="stats-grid">
-            <div class="stat-card fade-up fade-up-1">
+            <div class="stat-card fade-up fade-up-1" id="card-total">
                 <div class="stat-icon" style="background:rgba(108,99,255,0.15); color:var(--primary);">
                     <i class="fas fa-chart-bar"></i>
                 </div>
                 <div class="stat-value" id="total-predictions" style="color:var(--primary);">—</div>
                 <div class="stat-label">Total Predictions</div>
             </div>
-            <div class="stat-card fade-up fade-up-2">
+            <div class="stat-card fade-up fade-up-2" id="card-high">
                 <div class="stat-icon" style="background:rgba(239,68,68,0.15); color:var(--danger);">
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
                 <div class="stat-value" id="high-risk" style="color:var(--danger);">—</div>
                 <div class="stat-label">High Risk Cases</div>
             </div>
-            <div class="stat-card fade-up fade-up-3">
+            <div class="stat-card fade-up fade-up-3" id="card-avg">
                 <div class="stat-icon" style="background:rgba(245,158,11,0.15); color:var(--warning);">
                     <i class="fas fa-percentage"></i>
                 </div>
@@ -258,15 +439,13 @@
                             </thead>
                             <tbody>
                                 {% for p in predictions[:6] %}
-                                <tr>
-                                    <td style="color:var(--muted); font-size:0.8rem;">
-                                        {{ p.created_at.strftime('%b %d, %Y') }}
-                                    </td>
+                                <tr class="fade-up" style="animation-delay:{{ loop.index * 0.05 }}s;">
+                                    <td style="color:var(--muted); font-size:0.8rem;">{{ p.created_at.strftime('%b %d,
+                                        %Y') }}</td>
                                     <td>{{ p.age }} yrs</td>
                                     <td>{{ p.avg_glucose_level|round(1) }} mg/dL</td>
                                     <td>{{ p.bmi|round(1) }}</td>
-                                    <td>
-                                        <span class="badge badge-primary">{{ (p.risk_score * 100)|round(1) }}%</span>
+                                    <td><span class="badge badge-primary">{{ (p.risk_score * 100)|round(1) }}%</span>
                                     </td>
                                     <td>
                                         {% if p.risk_score < 0.15 %} <span class="badge badge-success"><i
@@ -307,33 +486,22 @@
                     <div class="section-hdr"><i class="fas fa-bolt"></i> Quick Actions</div>
                     <div style="padding:16px;">
                         <a href="{{ url_for('predict') }}" class="quick-action">
-                            <div class="qa-icon" style="background:rgba(108,99,255,0.15); color:var(--primary);">
-                                <i class="fas fa-calculator"></i>
-                            </div>
-                            <div class="qa-text">
-                                <strong>New Prediction</strong>
-                                <small>Assess stroke risk now</small>
+                            <div class="qa-icon" style="background:rgba(108,99,255,0.15); color:var(--primary);"><i
+                                    class="fas fa-calculator"></i></div>
+                            <div class="qa-text"><strong>New Prediction</strong><small>Assess stroke risk now</small>
                             </div>
                             <i class="fas fa-chevron-right qa-arrow"></i>
                         </a>
                         <a href="{{ url_for('history') }}" class="quick-action">
-                            <div class="qa-icon" style="background:rgba(59,130,246,0.15); color:var(--info);">
-                                <i class="fas fa-history"></i>
-                            </div>
-                            <div class="qa-text">
-                                <strong>History</strong>
-                                <small>View past assessments</small>
-                            </div>
+                            <div class="qa-icon" style="background:rgba(59,130,246,0.15); color:var(--info);"><i
+                                    class="fas fa-history"></i></div>
+                            <div class="qa-text"><strong>History</strong><small>View past assessments</small></div>
                             <i class="fas fa-chevron-right qa-arrow"></i>
                         </a>
                         <a href="{{ url_for('profile') }}" class="quick-action">
-                            <div class="qa-icon" style="background:rgba(16,185,129,0.15); color:var(--success);">
-                                <i class="fas fa-user-circle"></i>
-                            </div>
-                            <div class="qa-text">
-                                <strong>My Profile</strong>
-                                <small>Account settings</small>
-                            </div>
+                            <div class="qa-icon" style="background:rgba(16,185,129,0.15); color:var(--success);"><i
+                                    class="fas fa-user-circle"></i></div>
+                            <div class="qa-text"><strong>My Profile</strong><small>Account settings</small></div>
                             <i class="fas fa-chevron-right qa-arrow"></i>
                         </a>
                     </div>
@@ -379,32 +547,135 @@
     </div>
 
     <script>
-        // Animated counter
+        /* ===== THEME SYSTEM ===== */
+        const THEME_NAMES = {
+            space: 'Deep Space',
+            ocean: 'Ocean',
+            forest: 'Forest',
+            crimson: 'Crimson',
+            arctic: 'Arctic'
+        };
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('ng-theme', theme);
+            document.getElementById('themeName').textContent = THEME_NAMES[theme] || 'Theme';
+            document.querySelectorAll('.theme-option').forEach(opt => {
+                const active = opt.dataset.theme === theme;
+                opt.classList.toggle('active', active);
+                opt.querySelector('.theme-check').style.display = active ? '' : 'none';
+            });
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('ng-theme') || 'space';
+        applyTheme(savedTheme);
+
+        // Toggle dropdown
+        const themeToggle = document.getElementById('themeToggle');
+        const themeDropdown = document.getElementById('themeDropdown');
+        themeToggle.addEventListener('click', e => {
+            e.stopPropagation();
+            themeDropdown.classList.toggle('open');
+        });
+        document.addEventListener('click', () => themeDropdown.classList.remove('open'));
+        themeDropdown.addEventListener('click', e => e.stopPropagation());
+
+        // Theme option click
+        document.querySelectorAll('.theme-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                applyTheme(opt.dataset.theme);
+                themeDropdown.classList.remove('open');
+                showToast(`Theme changed to ${THEME_NAMES[opt.dataset.theme]}`, 'info');
+            });
+        });
+
+        /* ===== PARTICLES ===== */
+        const pc = document.getElementById('particles');
+        for (let i = 0; i < 24; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const sz = Math.random() * 5 + 2;
+            p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random() * 100}%;animation-duration:${Math.random() * 14 + 8}s;animation-delay:-${Math.random() * 12}s;`;
+            pc.appendChild(p);
+        }
+
+        /* ===== ANIMATED COUNTER ===== */
         function animateCount(el, target, suffix = '') {
             let current = 0;
-            const increment = target / 40;
+            const dur = 1200;
+            const step = target / (dur / 16);
             const timer = setInterval(() => {
-                current += increment;
+                current += step;
                 if (current >= target) { current = target; clearInterval(timer); }
                 el.textContent = Math.floor(current) + suffix;
-            }, 30);
+            }, 16);
         }
 
         fetch('{{ url_for("user_stats") }}')
             .then(r => r.json())
             .then(data => {
-                const total = document.getElementById('total-predictions');
-                const high = document.getElementById('high-risk');
-                const avg = document.getElementById('avg-risk');
-                animateCount(total, data.total_predictions);
-                animateCount(high, data.high_risk_count);
-                animateCount(avg, data.avg_risk_score, '%');
+                animateCount(document.getElementById('total-predictions'), data.total_predictions);
+                animateCount(document.getElementById('high-risk'), data.high_risk_count);
+                animateCount(document.getElementById('avg-risk'), data.avg_risk_score, '%');
             })
             .catch(() => {
                 ['total-predictions', 'high-risk', 'avg-risk'].forEach(id => {
                     document.getElementById(id).textContent = '0';
                 });
             });
+
+        /* ===== RIPPLE ON STAT CARDS ===== */
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('click', function (e) {
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size / 2}px;top:${e.clientY - rect.top - size / 2}px;`;
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        /* ===== RIPPLE ON BUTTONS ===== */
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size / 2}px;top:${e.clientY - rect.top - size / 2}px;`;
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        /* ===== TOAST NOTIFICATIONS ===== */
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const icons = { info: 'fa-info-circle', success: 'fa-check-circle', error: 'fa-exclamation-circle' };
+            const colors = { info: '#60a5fa', success: '#34d399', error: '#f87171' };
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<i class="fas ${icons[type]}" style="color:${colors[type]};font-size:1.1rem;"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        /* ===== MOBILE NAV ===== */
+        document.getElementById('navHamburger').addEventListener('click', () => {
+            document.getElementById('mobileNav').classList.add('open');
+        });
+        document.getElementById('mobileClose').addEventListener('click', () => {
+            document.getElementById('mobileNav').classList.remove('open');
+        });
+        document.getElementById('mobileOverlay').addEventListener('click', () => {
+            document.getElementById('mobileNav').classList.remove('open');
+        });
     </script>
 </body>
 

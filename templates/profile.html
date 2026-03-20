@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="space">
 
 <head>
     <meta charset="UTF-8">
@@ -9,13 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        .card-glass {
-            background: rgba(26, 22, 48, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-        }
-
         .profile-hero {
             background: linear-gradient(135deg, rgba(108, 99, 255, 0.25), rgba(247, 37, 133, 0.15));
             border: 1px solid rgba(108, 99, 255, 0.25);
@@ -32,8 +25,8 @@
             position: absolute;
             right: -80px;
             top: -80px;
-            width: 240px;
-            height: 240px;
+            width: 260px;
+            height: 260px;
             background: radial-gradient(circle, rgba(108, 99, 255, 0.2) 0%, transparent 70%);
             border-radius: 50%;
         }
@@ -49,28 +42,34 @@
             font-size: 2.4rem;
             color: #fff;
             margin: 0 auto 16px;
-            box-shadow: 0 8px 32px rgba(108, 99, 255, 0.4);
+            box-shadow: 0 8px 32px var(--glow-primary);
             animation: heartbeat 2s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
         }
 
         .profile-name {
             font-size: 1.6rem;
             font-weight: 800;
             margin-bottom: 4px;
+            position: relative;
+            z-index: 1;
         }
 
         .profile-email {
             color: var(--muted);
             font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
         }
 
         .profile-grid {
             display: grid;
-            grid-template-columns: 1fr 320px;
+            grid-template-columns: 1fr 340px;
             gap: 20px;
         }
 
-        @media (max-width:1024px) {
+        @media (max-width: 1024px) {
             .profile-grid {
                 grid-template-columns: 1fr;
             }
@@ -82,6 +81,11 @@
             gap: 14px;
             padding: 16px 24px;
             border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+        .info-row:hover {
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .info-row:last-child {
@@ -113,6 +117,16 @@
             font-weight: 500;
         }
 
+        /* ── Password Change Card ── */
+        .pw-form {
+            padding: 24px;
+        }
+
+        .pw-form .form-group {
+            margin-bottom: 14px;
+        }
+
+        /* ── Stat mini ── */
         .stat-mini {
             padding: 20px;
             text-align: center;
@@ -129,31 +143,102 @@
             font-size: 0.85rem;
             margin-top: 4px;
         }
+
+        /* ── Flash messages ── */
+        .flash-list {
+            list-style: none;
+            margin: 0 0 20px;
+            padding: 0;
+        }
+
+        .flash-list li {
+            animation: fadeUp 0.4s ease both;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Aurora -->
+    <div class="aurora">
+        <div class="aurora-blob aurora-blob-1"></div>
+        <div class="aurora-blob aurora-blob-2"></div>
+        <div class="aurora-blob aurora-blob-3"></div>
+    </div>
+    <div class="particles" id="particles"></div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Navbar -->
     <nav class="topnav">
         <a href="{{ url_for('dashboard') }}" class="brand">
-            <div class="pulse"><i class="fas fa-brain" style="color:#fff;font-size:16px;"></i></div> NeuroGuard
+            <div class="pulse pulse-ring"><i class="fas fa-brain" style="color:#fff;font-size:16px;"></i></div>
+            NeuroGuard
         </a>
         <ul class="nav-links">
             <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
             <li><a href="{{ url_for('predict') }}"><i class="fas fa-calculator"></i> Predict</a></li>
             <li><a href="{{ url_for('history') }}"><i class="fas fa-history"></i> History</a></li>
+            <li><a href="{{ url_for('analytics') }}"><i class="fas fa-chart-line"></i> Analytics</a></li>
             <li><a href="{{ url_for('profile') }}" class="active"><i class="fas fa-user-circle"></i> Profile</a></li>
+            <li class="theme-wrapper">
+                <button class="theme-btn" id="themeToggle"><span class="theme-dot"></span><span
+                        id="themeName">Theme</span><i class="fas fa-chevron-down"
+                        style="font-size:0.7rem;"></i></button>
+                <div class="theme-dropdown" id="themeDropdown">
+                    <h6>Choose Theme</h6>
+                    <div class="theme-option active" data-theme="space">
+                        <div class="theme-swatch swatch-space"></div><span>Deep Space</span><i
+                            class="fas fa-check theme-check"></i>
+                    </div>
+                    <div class="theme-option" data-theme="ocean">
+                        <div class="theme-swatch swatch-ocean"></div><span>Midnight Ocean</span><i
+                            class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                    <div class="theme-option" data-theme="forest">
+                        <div class="theme-swatch swatch-forest"></div><span>Emerald Forest</span><i
+                            class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                    <div class="theme-option" data-theme="crimson">
+                        <div class="theme-swatch swatch-crimson"></div><span>Crimson Night</span><i
+                            class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                    <div class="theme-option" data-theme="arctic">
+                        <div class="theme-swatch swatch-arctic"></div><span>Arctic (Light)</span><i
+                            class="fas fa-check theme-check" style="display:none;"></i>
+                    </div>
+                </div>
+            </li>
             <li><a href="{{ url_for('logout') }}" class="btn-danger-nav"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </li>
         </ul>
+        <div class="nav-hamburger"><i class="fas fa-bars"></i></div>
     </nav>
 
-    <div class="page-wrap">
+    <div class="page-wrap" style="position:relative;z-index:1;">
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul class="flash-list">
+            {% for category, message in messages %}
+            <li>
+                <div class="alert {% if category == 'error' %}alert-danger{% elif category == 'success' %}alert-success{% else %}alert-info{% endif %}"
+                    style="margin-bottom:8px;">
+                    <i
+                        class="fas {% if category == 'error' %}fa-exclamation-circle{% elif category == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+
         <!-- Hero -->
         <div class="profile-hero fade-up">
             <div class="avatar-ring">{{ user.username[0]|upper }}</div>
             <div class="profile-name">{{ user.username }}</div>
             <div class="profile-email"><i class="fas fa-envelope"></i> {{ user.email }}</div>
-            <div style="margin-top:14px;">
+            <div style="margin-top:14px; position:relative; z-index:1;">
                 <span class="badge badge-primary"><i class="fas fa-shield-alt"></i> Verified Member</span>
                 <span class="badge badge-info" style="margin-left:6px;"><i class="fas fa-chart-bar"></i> {{
                     prediction_count }} Predictions</span>
@@ -161,85 +246,223 @@
         </div>
 
         <div class="profile-grid">
-            <!-- Account info -->
-            <div class="card-glass fade-up fade-up-1">
-                <div class="section-hdr"><i class="fas fa-user-cog"></i> Account Information</div>
-                <div class="info-row">
-                    <div class="info-icon" style="background:rgba(108,99,255,0.15);color:var(--primary);">
-                        <i class="fas fa-user"></i>
+            <!-- Left column -->
+            <div style="display:flex; flex-direction:column; gap:20px;">
+
+                <!-- Account Info -->
+                <div class="card-glass fade-up fade-up-1">
+                    <div class="section-hdr"><i class="fas fa-user-cog"></i> Account Information</div>
+                    <div class="info-row">
+                        <div class="info-icon" style="background:rgba(108,99,255,0.15);color:var(--primary);"><i
+                                class="fas fa-user"></i></div>
+                        <div>
+                            <div class="info-label">Username</div>
+                            <div class="info-value">{{ user.username }}</div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="info-label">Username</div>
-                        <div class="info-value">{{ user.username }}</div>
+                    <div class="info-row">
+                        <div class="info-icon" style="background:rgba(59,130,246,0.15);color:var(--info);"><i
+                                class="fas fa-envelope"></i></div>
+                        <div>
+                            <div class="info-label">Email Address</div>
+                            <div class="info-value">{{ user.email }}</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon" style="background:rgba(16,185,129,0.15);color:var(--success);"><i
+                                class="fas fa-calendar-alt"></i></div>
+                        <div>
+                            <div class="info-label">Member Since</div>
+                            <div class="info-value">{{ user.created_at.strftime('%B %d, %Y') }}</div>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon" style="background:rgba(245,158,11,0.15);color:var(--warning);"><i
+                                class="fas fa-chart-bar"></i></div>
+                        <div>
+                            <div class="info-label">Total Predictions Made</div>
+                            <div class="info-value"><span class="badge badge-warning">{{ prediction_count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        style="padding:20px 24px; border-top:1px solid var(--border); display:flex; gap:10px; flex-wrap:wrap;">
+                        <a href="{{ url_for('predict') }}" class="btn btn-primary" style="font-size:0.85rem;">
+                            <i class="fas fa-calculator"></i> New Assessment
+                        </a>
+                        <a href="{{ url_for('analytics') }}" class="btn btn-outline" style="font-size:0.85rem;">
+                            <i class="fas fa-chart-line"></i> Analytics
+                        </a>
+                        <a href="{{ url_for('logout') }}" class="btn btn-danger" style="font-size:0.85rem;">
+                            <i class="fas fa-sign-out-alt"></i> Sign Out
+                        </a>
                     </div>
                 </div>
-                <div class="info-row">
-                    <div class="info-icon" style="background:rgba(59,130,246,0.15);color:var(--info);">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <div>
-                        <div class="info-label">Email Address</div>
-                        <div class="info-value">{{ user.email }}</div>
-                    </div>
-                </div>
-                <div class="info-row">
-                    <div class="info-icon" style="background:rgba(16,185,129,0.15);color:var(--success);">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    <div>
-                        <div class="info-label">Member Since</div>
-                        <div class="info-value">{{ user.created_at.strftime('%B %d, %Y') }}</div>
-                    </div>
-                </div>
-                <div class="info-row">
-                    <div class="info-icon" style="background:rgba(245,158,11,0.15);color:var(--warning);">
-                        <i class="fas fa-chart-bar"></i>
-                    </div>
-                    <div>
-                        <div class="info-label">Total Predictions Made</div>
-                        <div class="info-value"><span class="badge badge-warning">{{ prediction_count }}</span></div>
-                    </div>
-                </div>
-                <div style="padding:20px 24px; border-top:1px solid var(--border); display:flex; gap:10px;">
-                    <a href="{{ url_for('predict') }}" class="btn btn-primary" style="font-size:0.85rem;">
-                        <i class="fas fa-calculator"></i> New Assessment
-                    </a>
-                    <a href="{{ url_for('logout') }}" class="btn btn-danger" style="font-size:0.85rem;">
-                        <i class="fas fa-sign-out-alt"></i> Sign Out
-                    </a>
+
+                <!-- Change Password -->
+                <div class="card-glass fade-up fade-up-2">
+                    <div class="section-hdr"><i class="fas fa-lock"></i> Change Password</div>
+                    <form method="POST" action="{{ url_for('change_password') }}" class="pw-form" id="pw-form">
+                        <div class="form-group">
+                            <label for="old_password">Current Password</label>
+                            <div class="input-icon">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" class="form-control" id="old_password" name="old_password"
+                                    placeholder="Enter current password" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="new_password">New Password</label>
+                            <div class="input-icon">
+                                <i class="fas fa-key"></i>
+                                <input type="password" class="form-control" id="new_password" name="new_password"
+                                    placeholder="Min. 6 characters" required minlength="6"
+                                    oninput="checkStrength(this.value)">
+                            </div>
+                            <!-- Strength bar -->
+                            <div
+                                style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-top:8px;overflow:hidden;">
+                                <div id="pw-strength-fill"
+                                    style="height:100%;border-radius:2px;transition:width 0.3s,background 0.3s;width:0%;">
+                                </div>
+                            </div>
+                            <div id="pw-strength-text" style="font-size:0.75rem;color:var(--muted);margin-top:4px;">
+                                Enter a new password</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_new_password">Confirm New Password</label>
+                            <div class="input-icon">
+                                <i class="fas fa-shield-alt"></i>
+                                <input type="password" class="form-control" id="confirm_new_password"
+                                    name="confirm_new_password" placeholder="Repeat new password" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" id="pw-btn">
+                            <i class="fas fa-save"></i> Update Password
+                        </button>
+                    </form>
                 </div>
             </div>
 
-            <!-- Sidebar stats -->
-            <div>
-                <div class="card-glass fade-up fade-up-2" style="margin-bottom:16px;">
+            <!-- Right sidebar -->
+            <div style="display:flex; flex-direction:column; gap:16px;">
+
+                <!-- Your Stats -->
+                <div class="card-glass fade-up fade-up-3">
                     <div class="section-hdr"><i class="fas fa-chart-pie"></i> Your Stats</div>
                     <div class="stat-mini">
                         <div class="num" style="color:var(--primary);">{{ prediction_count }}</div>
                         <div class="lbl">Total Assessments</div>
                     </div>
-                    <div style="padding:0 24px 20px;">
+                    <div style="padding:0 24px 20px; display:flex; flex-direction:column; gap:8px;">
                         <a href="{{ url_for('history') }}" class="btn btn-outline btn-block" style="font-size:0.85rem;">
-                            <i class="fas fa-history"></i> View All History
+                            <i class="fas fa-history"></i> View History
+                        </a>
+                        <a href="{{ url_for('export_csv') }}" class="btn btn-success btn-block"
+                            style="font-size:0.85rem;">
+                            <i class="fas fa-file-csv"></i> Export CSV
+                        </a>
+                        <a href="{{ url_for('analytics') }}" class="btn btn-outline btn-block"
+                            style="font-size:0.85rem;">
+                            <i class="fas fa-chart-line"></i> Analytics Dashboard
                         </a>
                     </div>
                 </div>
 
-                <div class="card-glass fade-up fade-up-3">
+                <!-- Did You Know -->
+                <div class="card-glass fade-up fade-up-4">
                     <div class="section-hdr"><i class="fas fa-lightbulb" style="color:var(--warning);"></i> Did You
                         Know?</div>
-                    <div style="padding:16px; font-size:0.85rem; color:var(--muted); line-height:1.7;">
+                    <div style="padding:16px; font-size:0.85rem; color:var(--muted); line-height:1.75;">
                         <p>🧠 Regular health monitoring can reduce stroke risk by up to <strong
-                                style="color:#fff;">80%</strong>.</p>
+                                style="color:var(--text);">80%</strong>.</p>
                         <p style="margin-top:10px;">📊 Keeping records of your risk scores helps doctors identify trends
                             over time.</p>
                         <p style="margin-top:10px;">💊 Early intervention is the most effective stroke prevention
                             strategy.</p>
+                        <p style="margin-top:10px;">🚀 Your predictions help grow the AI model's training dataset!</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        /* ===== THEME ===== */
+        const TN = { space: 'Deep Space', ocean: 'Ocean', forest: 'Forest', crimson: 'Crimson', arctic: 'Arctic' };
+        function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('ng-theme', t); document.getElementById('themeName').textContent = TN[t] || 'Theme'; document.querySelectorAll('.theme-option').forEach(o => { const a = o.dataset.theme === t; o.classList.toggle('active', a); o.querySelector('.theme-check').style.display = a ? '' : 'none'; }); }
+        applyTheme(localStorage.getItem('ng-theme') || 'space');
+        const ttgl = document.getElementById('themeToggle'), tdd = document.getElementById('themeDropdown');
+        ttgl.addEventListener('click', e => { e.stopPropagation(); tdd.classList.toggle('open'); });
+        document.addEventListener('click', () => tdd.classList.remove('open'));
+        tdd.addEventListener('click', e => e.stopPropagation());
+        document.querySelectorAll('.theme-option').forEach(o => o.addEventListener('click', () => { applyTheme(o.dataset.theme); tdd.classList.remove('open'); }));
+
+        /* ===== PARTICLES ===== */
+        const pc = document.getElementById('particles');
+        for (let i = 0; i < 16; i++) { const p = document.createElement('div'); p.className = 'particle'; const s = Math.random() * 4 + 2; p.style.cssText = `width:${s}px;height:${s}px;left:${Math.random() * 100}%;animation-duration:${Math.random() * 14 + 8}s;animation-delay:-${Math.random() * 12}s;`; pc.appendChild(p); }
+
+        /* ===== PASSWORD STRENGTH ===== */
+        function checkStrength(pw) {
+            const fill = document.getElementById('pw-strength-fill');
+            const text = document.getElementById('pw-strength-text');
+            let score = 0;
+            if (pw.length >= 6) score++;
+            if (pw.length >= 10) score++;
+            if (/[A-Z]/.test(pw)) score++;
+            if (/[0-9]/.test(pw)) score++;
+            if (/[^A-Za-z0-9]/.test(pw)) score++;
+            const levels = [
+                { pct: '20%', color: '#ef4444', label: 'Very weak' },
+                { pct: '40%', color: '#f97316', label: 'Weak' },
+                { pct: '60%', color: '#f59e0b', label: 'Fair' },
+                { pct: '80%', color: '#84cc16', label: 'Strong' },
+                { pct: '100%', color: '#10b981', label: 'Very strong' },
+            ];
+            const l = levels[Math.min(score, 4)];
+            fill.style.width = l.pct;
+            fill.style.background = l.color;
+            text.textContent = l.label;
+            text.style.color = l.color;
+        }
+
+        /* ===== PW FORM SUBMIT ===== */
+        document.getElementById('pw-form').addEventListener('submit', function (e) {
+            const newPw = document.getElementById('new_password').value;
+            const confPw = document.getElementById('confirm_new_password').value;
+            if (newPw !== confPw) {
+                e.preventDefault();
+                showToast('New passwords do not match!', 'error');
+                return;
+            }
+            const btn = document.getElementById('pw-btn');
+            btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Updating…';
+            btn.disabled = true;
+        });
+
+        /* ===== TOAST ===== */
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const icons = { info: 'fa-info-circle', success: 'fa-check-circle', error: 'fa-exclamation-circle' };
+            const colors = { info: '#60a5fa', success: '#34d399', error: '#f87171' };
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<i class="fas ${icons[type]}" style="color:${colors[type]};font-size:1.1rem;"></i><span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.add('hide'); setTimeout(() => toast.remove(), 300); }, 3500);
+        }
+
+        /* ===== AUTO SHOW FLASH AS TOAST ===== */
+        {% with messages = get_flashed_messages(with_categories = true) %}
+        {% if messages %}
+        setTimeout(() => {
+            {% for category, message in messages %}
+            showToast('{{ message | e }}', '{{ category }}');
+            {% endfor %}
+        }, 100);
+        {% endif %}
+        {% endwith %}
+    </script>
 </body>
 
 </html>

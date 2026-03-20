@@ -1,73 +1,260 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="space">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login — NeuroGuard Stroke Risk AI</title>
   <meta name="description" content="Login to NeuroGuard – AI-powered brain stroke risk prediction platform">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <style>
     body {
-      display: flex; align-items: center; justify-content: center;
-      min-height: 100vh; padding: 20px;
-      background: radial-gradient(ellipse at 20% 50%, rgba(108,99,255,0.15) 0%, transparent 60%),
-                  radial-gradient(ellipse at 80% 20%, rgba(247,37,133,0.1) 0%, transparent 50%),
-                  var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 100vh;
+      padding: 20px 40px;
+      background: var(--bg);
+      overflow: hidden;
     }
-    .auth-box {
-      width: 100%; max-width: 440px;
-      background: rgba(26,22,48,0.8);
-      backdrop-filter: blur(24px);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 48px 44px;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+
+    .left-panel {
+      flex: 1;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-right: 40px;
+      z-index: 2;
+    }
+
+    .left-panel .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(108, 99, 255, 0.15);
+      border: 1px solid rgba(108, 99, 255, 0.3);
+      color: var(--primary);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
       animation: fadeUp 0.5s ease both;
     }
+
+    .left-panel h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      animation: fadeUp 0.55s 0.05s ease both;
+    }
+
+    .left-panel p {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 32px;
+      animation: fadeUp 0.55s 0.1s ease both;
+    }
+
+    .feature-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      animation: fadeUp 0.55s 0.15s ease both;
+    }
+
+    .pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .pill i {
+      color: var(--primary);
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(26, 22, 48, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 44px 40px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(108, 99, 255, 0.1);
+      animation: scaleIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+    }
+
+    [data-theme="arctic"] .auth-box {
+      background: rgba(255, 255, 255, 0.9);
+    }
+
     .auth-logo {
-      display: flex; align-items: center; justify-content: center; gap: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
       margin-bottom: 32px;
     }
+
     .auth-logo .icon-wrap {
-      width: 52px; height: 52px;
+      width: 54px;
+      height: 54px;
       background: linear-gradient(135deg, var(--primary), var(--accent));
       border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; color: #fff;
-      box-shadow: 0 8px 24px rgba(108,99,255,0.4);
-      animation: heartbeat 1.4s ease-in-out infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: #fff;
+      box-shadow: 0 8px 24px var(--glow-primary);
+      animation: heartbeat 1.4s ease-in-out infinite, glowBreathe 3s ease-in-out infinite;
     }
-    .auth-logo .brand-text { font-size: 1.3rem; font-weight: 800; color: #fff; }
-    .auth-logo .brand-sub  { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
-    h2 { font-size: 1.7rem; font-weight: 800; margin-bottom: 6px; }
-    .auth-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; }
+
+    @keyframes glowBreathe {
+
+      0%,
+      100% {
+        box-shadow: 0 8px 24px var(--glow-primary);
+      }
+
+      50% {
+        box-shadow: 0 8px 40px var(--glow-primary), 0 0 60px var(--glow-primary);
+      }
+    }
+
+    .auth-logo .brand-text {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .auth-logo .brand-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .auth-sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+
     .auth-footer {
-      text-align: center; margin-top: 24px;
-      font-size: 0.88rem; color: var(--muted);
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.88rem;
+      color: var(--muted);
     }
-    .auth-footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
-    .auth-footer a:hover { text-decoration: underline; }
-    .input-icon { position: relative; }
-    .input-icon i {
-      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-      color: var(--muted); font-size: 0.95rem;
+
+    .auth-footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 700;
     }
-    .input-icon .form-control { padding-left: 42px; }
-    .divider {
-      display: flex; align-items: center; gap: 12px;
-      margin: 20px 0; color: var(--muted); font-size: 0.8rem;
+
+    .auth-footer a:hover {
+      text-decoration: underline;
     }
-    .divider::before, .divider::after {
-      content: ''; flex: 1; height: 1px; background: var(--border);
+
+    /* Theme mini-selector on login */
+    .theme-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+      justify-content: center;
+    }
+
+    .theme-row span {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .mini-swatch {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .mini-swatch:hover {
+      transform: scale(1.25);
+    }
+
+    .mini-swatch.active {
+      border-color: #fff;
+      transform: scale(1.15);
+    }
+
+    @media (max-width: 900px) {
+      body {
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .left-panel {
+        display: none;
+      }
     }
   </style>
 </head>
+
 <body>
+  <!-- Aurora -->
+  <div class="aurora">
+    <div class="aurora-blob aurora-blob-1"></div>
+    <div class="aurora-blob aurora-blob-2"></div>
+    <div class="aurora-blob aurora-blob-3"></div>
+  </div>
+
   <!-- Particles -->
   <div class="particles" id="particles"></div>
+
+  <!-- Left marketing panel -->
+  <div class="left-panel">
+    <div class="hero-tag"><i class="fas fa-brain"></i> AI-Powered Health Tool</div>
+    <h1><span class="gradient-text">Predict</span><br>Stroke Risk<br>Early.</h1>
+    <p>NeuroGuard uses machine learning to analyze your health factors and provide an instant stroke risk assessment.
+      Stay ahead of your health.</p>
+    <div class="feature-pills">
+      <div class="pill"><i class="fas fa-bolt"></i> Instant Results</div>
+      <div class="pill"><i class="fas fa-shield-alt"></i> Secure & Private</div>
+      <div class="pill"><i class="fas fa-chart-line"></i> Track History</div>
+      <div class="pill"><i class="fas fa-robot"></i> ML Powered</div>
+    </div>
+  </div>
 
   <div class="auth-box">
     <div class="auth-logo">
@@ -78,19 +265,24 @@
       </div>
     </div>
 
+    <!-- Theme switcher -->
+    <div class="theme-row">
+      <span>Theme:</span>
+      <div class="mini-swatch swatch-space active" data-theme="space" title="Deep Space"></div>
+      <div class="mini-swatch swatch-ocean" data-theme="ocean" title="Ocean"></div>
+      <div class="mini-swatch swatch-forest" data-theme="forest" title="Forest"></div>
+      <div class="mini-swatch swatch-crimson" data-theme="crimson" title="Crimson"></div>
+      <div class="mini-swatch swatch-arctic" data-theme="arctic" title="Arctic (Light)"></div>
+    </div>
+
     <h2>Welcome back</h2>
     <p class="auth-sub">Sign in to your account to continue</p>
 
     {% if error %}
-    <div class="alert alert-danger">
-      <i class="fas fa-exclamation-circle"></i> {{ error }}
-    </div>
+    <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
     {% endif %}
-
     {% if success %}
-    <div class="alert alert-success">
-      <i class="fas fa-check-circle"></i> {{ success }}
-    </div>
+    <div class="alert alert-success"><i class="fas fa-check-circle"></i> {{ success }}</div>
     {% endif %}
 
     <form method="POST" id="login-form">
@@ -98,20 +290,18 @@
         <label for="username">Username</label>
         <div class="input-icon">
           <i class="fas fa-user"></i>
-          <input type="text" class="form-control" id="username" name="username"
-                 placeholder="Enter your username" required autocomplete="username">
+          <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username"
+            required autocomplete="username">
         </div>
       </div>
-
       <div class="form-group">
         <label for="password">Password</label>
         <div class="input-icon">
           <i class="fas fa-lock"></i>
-          <input type="password" class="form-control" id="password" name="password"
-                 placeholder="Enter your password" required autocomplete="current-password">
+          <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password"
+            required autocomplete="current-password">
         </div>
       </div>
-
       <button type="submit" class="btn btn-primary btn-block btn-lg" id="login-btn" style="margin-top:8px;">
         <i class="fas fa-sign-in-alt"></i> Sign In
       </button>
@@ -125,28 +315,46 @@
   </div>
 
   <script>
-    // Particle effect
-    const container = document.getElementById('particles');
-    for (let i = 0; i < 18; i++) {
+    /* ===== THEME ===== */
+    function applyTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('ng-theme', t);
+      document.querySelectorAll('.mini-swatch').forEach(s => s.classList.toggle('active', s.dataset.theme === t));
+    }
+    const saved = localStorage.getItem('ng-theme') || 'space';
+    applyTheme(saved);
+    document.querySelectorAll('.mini-swatch').forEach(s => {
+      s.addEventListener('click', () => applyTheme(s.dataset.theme));
+    });
+
+    /* ===== PARTICLES ===== */
+    const pc = document.getElementById('particles');
+    for (let i = 0; i < 22; i++) {
       const p = document.createElement('div');
       p.className = 'particle';
-      const size = Math.random() * 6 + 3;
-      p.style.cssText = `
-        width:${size}px; height:${size}px;
-        left:${Math.random()*100}%;
-        animation-duration:${Math.random()*12+8}s;
-        animation-delay:-${Math.random()*10}s;
-        opacity:${Math.random()*0.15+0.05};
-      `;
-      container.appendChild(p);
+      const sz = Math.random() * 5 + 2;
+      p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random() * 100}%;animation-duration:${Math.random() * 14 + 8}s;animation-delay:-${Math.random() * 12}s;`;
+      pc.appendChild(p);
     }
 
-    // Button loading state
-    document.getElementById('login-form').addEventListener('submit', function() {
+    /* ===== FORM SUBMIT ===== */
+    document.getElementById('login-form').addEventListener('submit', function () {
       const btn = document.getElementById('login-btn');
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in…';
+      btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Signing in…';
       btn.disabled = true;
+      btn.classList.add('btn-shimmer');
+    });
+
+    /* ===== INPUT ENTER ANIMATION ===== */
+    document.querySelectorAll('.form-control').forEach(inp => {
+      inp.addEventListener('focus', function () {
+        this.closest('.form-group').style.transform = 'translateY(-1px)';
+      });
+      inp.addEventListener('blur', function () {
+        this.closest('.form-group').style.transform = '';
+      });
     });
   </script>
 </body>
+
 </html>
